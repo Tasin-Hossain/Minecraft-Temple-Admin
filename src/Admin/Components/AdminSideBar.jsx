@@ -83,7 +83,7 @@ export default function SideBar({ expanded }) {
             expanded ? "max-w-xs opacity-100" : "max-w-0 opacity-0"
           }`}
         >
-          <span className="text-[16px] font-semibold text-(--primary)">
+          <span className="text-[16px] font-semibold text-(--theme)">
             Minecraft
             <span className="text-(--text)"> Temple</span>
           </span>
@@ -149,11 +149,11 @@ const MenuItem = memo(({ item, expanded, pathname, isOpen, toggle }) => {
           onClick={() => children && toggle(name)}
           className={`
             group relative w-full flex items-center justify-between
-            px-4 py-3 rounded-sm transition-all duration-200
+            px-4 py-3 rounded-sm transition-all duration-200 f
             ${
               isActive
                 ? "text-(--text) bg-(--primary) shadow-[inset_0_4px_0px_#ffd953,inset_0_-5px_0px_#ff791a]"
-                : "text-(--text) hover:bg-(--sidebar-hover)"
+                : "text-(--text) hover:bg-(--sidebar-hover) font-semibold"
             }
           `}
         >
@@ -191,7 +191,7 @@ const MenuItem = memo(({ item, expanded, pathname, isOpen, toggle }) => {
                   key={child.name}
                   to={child.path}
                   className={`
-                    text-[14px] px-4 w-full py-3 rounded-md transition font-semibold
+                    text-[14px] px-4 w-full py-3 rounded-md transition 
                     ${
                       childActive
                         ? "text-(--primary) bg-(--sidebar-hover)"
@@ -215,7 +215,7 @@ const MenuItem = memo(({ item, expanded, pathname, isOpen, toggle }) => {
           <MenuTooltip
             position={{
               top: tooltipPos.top - 20,
-              left: tooltipPos.left + -5,
+              left: tooltipPos.left + -7,
             }}
             onMouseEnter={() => setHoverTooltip(true)}
             onMouseLeave={() => {

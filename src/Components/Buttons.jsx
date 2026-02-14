@@ -26,6 +26,67 @@ export function ButtonPrimary({
     </button>
   );
 }
+export default function Button({
+  children,
+  icon = null,
+  className = "",
+  onClick,
+  type = "button",
+  disabled = false,
+  onChange,
+}) {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      onChange={onChange}
+      className={`
+        flex items-center gap-2 justify-center px-6 py-3 font-semibold text-white bg-linear-to-b from-[#3c8527] to-[#3c8527] shadow-[inset_0_4px_0px_#52a535,inset_0_-5px_0px_#1a4d1a] border border-(--border)
+        hover:brightness-110 
+        active:translate-y-0.5 active:shadow-[inset_0_4px_0px_#52a535,inset_0_-1px_0px_#1a4d1a]
+        transition-all duration-150
+        disabled:opacity-50 disabled:cursor-not-allowed
+        cursor-pointer rounded-sm
+
+        ${className}
+      `}
+    >
+      {icon && <span className="text-[18px]">{icon}</span>}
+      {children}
+    </button>
+  );
+}
+
+export function ButtonRed({
+  children,
+  icon = null,
+  className = "",
+  onClick,
+  type = "button",
+  disabled = false,
+}) {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        flex items-center gap-2 justify-center px-6 py-3 font-semibold text-white bg-linear-to-b from-[#fc3737] to-[#fc5858] shadow-[inset_0_4px_0px_#ee7373,inset_0_-5px_0px_#a22323] border border-(--border)
+        hover:brightness-110 hover:shadow-[inset_0_4px_0px_#ee7373,inset_0_-5px_0px_#a22323]
+        active:translate-y-0.5 active:shadow-[inset_0_4px_0px_#ee7373,inset_0_-1px_0px_#a22323]
+        transition-all duration-150
+        disabled:opacity-50 disabled:cursor-not-allowed
+        cursor-pointer rounded-sm
+
+        ${className}
+      `}
+    >
+      {icon && <span className="text-[18px]">{icon}</span>}
+      {children}
+    </button>
+  );
+}
 
 export function IconButton({
   children,
@@ -41,7 +102,7 @@ export function IconButton({
       onClick={onClick}
       disabled={disabled}
       className={`
-        flex items-center  gap-2 justify-center px-2 py-2 rounded-sm  border-1 border-(--border) cursor-pointer hover:brightness-90 transition-all 
+        flex items-center  gap-2 justify-center px-2 py-2 rounded-sm  border border-(--border) cursor-pointer hover:brightness-90 transition-all 
         ${className}
       `}
     >

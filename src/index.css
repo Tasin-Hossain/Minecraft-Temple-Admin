@@ -96,9 +96,10 @@
 
 @layer base {
   body {
-    @apply text-(--text) bg-(--background);
+    @apply text-(--text-color) bg-(--background) font-["Noto_Sans",sans-serif] ;
   }
 }
+
 
 
 
@@ -120,4 +121,23 @@
 
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
   background-color: var(--sidebar-scroll-hover);
+}
+/* Header notifaction Icon Animation */
+@keyframes ring {
+  0% { transform: rotate(0); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-8deg); }
+  30% { transform: rotate(14deg); }
+  40% { transform: rotate(-4deg); }
+  50% { transform: rotate(10deg); }
+  60% { transform: rotate(0); }
+  100% { transform: rotate(0); }
+}
+
+/* Header Mail Icon Animation */
+@keyframes mailPop {
+  0% { transform: scale(1) rotate(0); }
+  30% { transform: scale(1.15) rotate(-10deg); }
+  60% { transform: scale(1.1) rotate(8deg); }
+  100% { transform: scale(1) rotate(0); }
 }

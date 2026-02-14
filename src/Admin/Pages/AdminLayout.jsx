@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import AdminSideBar from "../Components/AdminSideBar";
 import AdminHeader from "../Components/AdminHeader";
 import { Outlet } from "react-router-dom";
+import ThemeSettings from "../Components/Themes/ThemeSettings";
 
 const HomepageLayout = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const [ThemeSettingsOpen, setThemeSettingsOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen">
@@ -33,11 +35,14 @@ const HomepageLayout = () => {
         <AdminHeader
           sidebarExpanded={sidebarExpanded}
           setSidebarExpanded={setSidebarExpanded}
+          setSettingsOpen={setThemeSettingsOpen}
         />
 
         {/* PAGE CONTENT */}
         <main className="flex flex-col overflow-y-auto py-4 px-6">
           <Outlet />
+          {/* Theme settings panel */}
+          <ThemeSettings open={ThemeSettingsOpen} setOpen={setThemeSettingsOpen} />
         </main>
       </div>
     </div>
