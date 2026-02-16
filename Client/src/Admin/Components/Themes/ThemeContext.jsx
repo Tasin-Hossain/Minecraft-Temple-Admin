@@ -1,22 +1,46 @@
+// src/context/ThemeContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeContext = createContext();
 export const useTheme = () => useContext(ThemeContext);
 
 const defaultTheme = {
-  mode: "light",       // light or dark
-  background: "#ffffff", // solid background color
-  textColor: "#313030",
-  theme: "#ffac11",    // primary accent color
-  navbar: "left",      // navbar position
+  mode: "light",
+  light: {
+    background: "#ffffff",
+    textColor: "#313030",
+    theme: "#ffac11",
+  },
+  dark: {
+    background: "#141414",
+    textColor: "#f5f5f5",
+    theme: "#ffac11",
+  },
 };
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
     try {
       const saved = localStorage.getItem("theme");
-      return saved ? { ...defaultTheme, ...JSON.parse(saved) } : defaultTheme;
-    } catch {
+      if (!saved) return defaultTheme;
+
+      const parsed = JSON.parse(saved);
+
+      // সঠিকভাবে merge করা — nested objects preserve করতে হবে
+      return {
+        ...defaultTheme,
+        ...parsed,
+        light: {
+          ...defaultTheme.light,
+          ...parsed.light,
+        },
+        dark: {
+          ...defaultTheme.dark,
+          ...parsed.dark,
+        },
+      };
+    } catch (err) {
+      console.error("Theme parse error:", err);
       return defaultTheme;
     }
   });
@@ -24,31 +48,24 @@ export const ThemeProvider = ({ children }) => {
   const [draftTheme, setDraftTheme] = useState(theme);
   const [savedAnimation, setSavedAnimation] = useState(false);
 
+  // draft sync
   useEffect(() => {
     setDraftTheme(theme);
   }, [theme]);
 
-  // Apply theme to document (shudhu 5 ta property use kore)
+  // apply theme to document
   useEffect(() => {
-    if (theme.mode === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    const active = theme[theme.mode] || theme.light;
 
-    // Solid background only
-    document.body.style.background = theme.background;
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundPosition = "center";
+    document.documentElement.classList.toggle("dark", theme.mode === "dark");
+    document.body.style.background = active.background;
 
-    // CSS Variables
-    document.documentElement.style.setProperty("--text-color", theme.textColor);
-    document.documentElement.style.setProperty("--theme", theme.theme);
+    document.documentElement.style.setProperty("--text-color", active.textColor);
+    document.documentElement.style.setProperty("--theme", active.theme);
 
-    // Save to localStorage
+    // প্রতিবার theme change-এ save (এটা ঠিক আছে)
     localStorage.setItem("theme", JSON.stringify(theme));
 
-    // Saved animation
     setSavedAnimation(true);
     const timer = setTimeout(() => setSavedAnimation(false), 1800);
     return () => clearTimeout(timer);

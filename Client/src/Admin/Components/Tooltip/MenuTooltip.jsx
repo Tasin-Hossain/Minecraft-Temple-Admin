@@ -23,7 +23,7 @@ export function MenuTooltip({
         px-2 py-2
         min-w-30
         rounded-md
-        text-sm font-medium
+        text-[14px]
         whitespace-nowrap transition
       "
     >

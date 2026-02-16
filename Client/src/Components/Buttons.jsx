@@ -102,7 +102,7 @@ export function IconButton({
       onClick={onClick}
       disabled={disabled}
       className={`
-        flex items-center  gap-2 justify-center px-2 py-2 rounded-sm  border border-(--border) cursor-pointer hover:brightness-90 transition-all 
+        flex items-center  gap-2 justify-center px-2 py-2 rounded-sm  border border-(--border) cursor-pointer hover:brightness-90  transition-all 
         ${className}
       `}
     >

@@ -24,6 +24,7 @@ export function SimpleTooltip({
         px-4 py-2
         rounded-md
         text-sm font-medium
+        border border-(--border)
         whitespace-nowrap 
       "
     >

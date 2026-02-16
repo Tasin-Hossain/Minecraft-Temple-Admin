@@ -158,7 +158,7 @@ export default function SideBar({ expanded }) {
       {isProfileOpen && (
         <div
           ref={dropdownRef}
-          className={`absolute ${expanded ? "left-1/2 " : "left-1/2 -bottom-10 "} bottom-0 mb-14 w-60  bg-(--dropdown-bg) border border-(--border) rounded-md overflow-hidden z-50`}
+          className={` absolute ${expanded ? "left-1/2 " : "left-1/2 -bottom-10 "} bottom-0 mb-14 w-60  bg-(--dropdown-bg) border-2 border-(--border) rounded-md overflow-hidden z-50`}
         >
           {/* username and email */}
           <div className=" border-b border-(--border) p-3">

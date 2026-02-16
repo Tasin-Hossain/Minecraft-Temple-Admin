@@ -2,10 +2,10 @@ import { MdMenu } from "react-icons/md";
 import { ButtonPrimary, IconButton } from "../../Components/Buttons";
 import { PiBellDuotone } from "react-icons/pi";
 import { IoSettingsOutline } from "react-icons/io5";
-import { AiTwotoneMail } from "react-icons/ai";
+import { IoMailOutline } from "react-icons/io5";
 const AdminHeader = ({ sidebarExpanded, setSidebarExpanded,setSettingsOpen }) => {
   return (
-    <header className=" bg-(--background) border-b border-(--border) px-6 py-4 flex items-center justify-between">
+    <header className=" bg-(--sidebar) border-b border-(--border) px-6 py-4 flex items-center justify-between">
       <div className="">
         <ButtonPrimary
           onClick={() => setSidebarExpanded(!sidebarExpanded)}
@@ -18,7 +18,7 @@ const AdminHeader = ({ sidebarExpanded, setSidebarExpanded,setSettingsOpen }) =>
 
       <div className="flex items-center gap-2 ">
         <IconButton className="group">
-          <AiTwotoneMail size={20} className="group-hover:animate-[mailPop_1s_ease-in-out]"/>
+          <IoMailOutline size={20} className="group-hover:animate-[mailPop_1s_ease-in-out]"/>
         </IconButton>
 
         <IconButton className="group">
