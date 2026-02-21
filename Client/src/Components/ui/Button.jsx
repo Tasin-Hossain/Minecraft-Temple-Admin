@@ -134,3 +134,52 @@ export default function Button({
     </button>
   );
 }
+
+export function DiscordButton({
+  children,
+  icon = null,
+  className = "",
+  onClick,
+  type = "button",
+  disabled = false,
+}) {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        cursor-pointer text-zinc-200  flex gap-2 items-center bg-[#5865F2] px-4 py-2 rounded-lg font-medium text-[14px] hover:bg-[#3b4aed] transition-all ease-in duration-200
+        ${className}
+      `}
+    >
+      {icon && <span className="text-[20px]">{icon}</span>}
+      {children}
+    </button>
+  );
+}
+
+export function GoogleButton({
+  children,
+  icon = null,
+  className = "",
+  onClick,
+  type = "button",
+  disabled = false,
+}) {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        cursor-pointer text-[14px] text-[#413f3f] hover:bg-[#afaea7] border border-(--border) flex gap-2 items-center bg-[#d9d8d0] px-4 py-2 rounded-lg font-medium  transition-all ease-in duration-200
+        ${className}
+      `}
+    >
+      {icon && <span className="text-[20px]">{icon}</span>}
+      {children}
+    </button>
+  );
+}
+
