@@ -4,7 +4,13 @@ import Logo from "../../Assets/logo.png";
 import { Input } from "../../Components/ui/Input";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { Checkbox } from "../../Components/ui/Checkbox";
-import Button from "../../Components/ui/Button";
+import Button, {
+  DiscordButton,
+  GoogleButton,
+} from "../../Components/ui/Button";
+import { Link } from "react-router-dom";
+import { FaDiscord } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -49,7 +55,6 @@ const Login = () => {
 
             {/* Password Field */}
             <div className="relative">
-
               <div className="relative">
                 <Input
                   label="Password"
@@ -83,32 +88,38 @@ const Login = () => {
           </div>
 
           <div className="flex items-center justify-between px-1">
-            <Checkbox label="I agree Trams & Condtions"  />
+            <Checkbox label="I agree Trams & Condtions" />
 
-            <a
-              href="#"
-              className="text-(--theme) text-[14px] hover:underline"
-            >
+            <a href="#" className="text-(--theme) text-[14px] hover:underline">
               Forgot password?
             </a>
           </div>
 
           {/* Submit Button */}
           <div>
-            <Button type="submit" className="w-full py-3.5 flex justify-center uppercase">Sign In</Button>
+            <Button
+              type="submit"
+              className="w-full py-3.5 flex justify-center uppercase"
+            >
+              Sign In
+            </Button>
           </div>
 
           {/* Sign up link */}
           <div className="text-center text-[14px] text-(--muted-text)">
             Don't have an account?{" "}
-            <a
-              href="#"
-              className="font-medium text-(--theme) hover:underline"
-            >
-              Sign up
-            </a>
+            <Link to={"/register"}>
+              <span className="font-medium text-(--theme) hover:underline">
+                Sign up
+              </span>
+            </Link>
           </div>
         </form>
+
+        <div className="flex items-center justify-between">
+          <DiscordButton children="Login with Discord" icon={<FaDiscord />} />
+          <GoogleButton children="Continue with Google" icon={<FcGoogle/>}/>
+        </div>
       </div>
     </div>
   );
