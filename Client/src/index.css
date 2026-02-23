@@ -31,7 +31,7 @@
   --btn-border: #7e7e87;
 
   --card: #ffffff;
-  --card-foreground: #1c1c1f;
+  --card-foreground: #c7c4c4;
 
   --popover: #ffffff;
   --popover-foreground: #1c1c1f;
@@ -88,7 +88,7 @@
   --border: rgba(255, 255, 255, 0.1);
   --btn-border: #7e7e87;
 
-  --card: #ffffff;
+  --card: #262626;
   --card-foreground: #1c1c1f;
 
   --popover: #ffffff;
@@ -105,7 +105,7 @@
   --chart-3: #7c3aed;
   --chart-4: #6d28d9;
   --chart-5: #5b21b6;
-
+  --hover: #404040;
   --sidebar: #262626;
   --sidebar-hover: #404040;
   --sidebar-foreground: #1c1c1f;
@@ -123,6 +123,9 @@
 @layer base {
   body {
     @apply text-(--text-color) bg-(--background) font-["Noto_Sans",sans-serif] ;
+  }
+  .btn{
+    @apply flex items-center gap-2 px-4 py-2 bg-(--card-foreground) border border-(--border) cursor-pointer rounded-md hover:brightness-90 transition text-sm font-medium;
   }
 }
 

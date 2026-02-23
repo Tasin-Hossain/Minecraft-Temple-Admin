@@ -181,7 +181,8 @@ export default function SideBar({ expanded }) {
 
           <div className="p-2">
             {/* my profile */}
-            <button
+            <Link to={'/admin/settings'}>
+              <button
               className="w-full px-3 py-2 text-left text-[14px] flex items-center gap-2 rounded-md cursor-pointer hover:bg-(--sidebar-hover) transition-colors"
               onClick={() => {
                 SetIsProfileOpen(false);
@@ -190,6 +191,7 @@ export default function SideBar({ expanded }) {
               <FaRegUser size={17} className="" />
               My Profile
             </button>
+            </Link>
 
             {/* Account Setting */}
             <button

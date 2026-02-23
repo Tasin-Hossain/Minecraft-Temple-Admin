@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { Input } from "../../../Components/ui/Input";
-import { CountrySelect } from "../../../Components/CountrySelect";
+
 import Button from '../../../Components/ui/Button';
 import { MdDriveFolderUpload } from "react-icons/md";
 import { FaRegSave } from "react-icons/fa";
@@ -128,12 +128,7 @@ export const ProfileSettings = ({ formData = {}, onChange = () => {}, onSubmit =
           placeholder="City name..."
         />
         {/* Adress */}
-        <CountrySelect
-          label="Country"
-          id="country"
-          value={formData.country || "BD"}
-          onChange={(val) => onChange({ target: { name: 'country', value: val } })}
-        />
+
       </div>
 
       <div className="flex justify-end gap-4">

@@ -7,6 +7,8 @@ import Components from "./Admin/Pages/Themes/Components";
 import GlobalThemeChange from "./Admin/Pages/Themes/GlobalThemeChange";
 import ChangeThemesLogs from "./Admin/Pages/Themes/ChangeThemesLogs";
 import AdminThemeChange from "./Admin/Pages/Themes/AdminThemeChange";
+import Login from "./Pages/Auth/Login";
+import Settings from "./Admin/Pages/Settings";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -23,8 +25,13 @@ const App = () => {
       { path: "/admin/admin-theme-change",element: <AdminThemeChange />},
       { path: "/admin/global-theme-change",element: <GlobalThemeChange />},
       { path: "/admin/theme-logs",element: <ChangeThemesLogs />},
+      { path: "/admin/settings",element: <Settings />},
     ],
   },
+  {
+    path:'/login',
+    element:<Login/>
+  }
   ]);
   return (
     <>

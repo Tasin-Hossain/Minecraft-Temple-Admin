@@ -39,7 +39,7 @@ const HomepageLayout = () => {
         />
 
         {/* PAGE CONTENT */}
-        <main className="flex flex-col overflow-y-auto py-4 px-6">
+        <main className="flex flex-col overflow-y-auto py-4 px-4">
           <Outlet />
           {/* Theme settings panel */}
           <ThemeSettings open={ThemeSettingsOpen} setOpen={setThemeSettingsOpen} />
