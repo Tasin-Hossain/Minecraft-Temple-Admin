@@ -12,26 +12,30 @@ import Settings from "./Admin/Pages/Settings";
 
 const App = () => {
   const router = createBrowserRouter([
-     {
-    path: "/admin",
-    element: <AdminLayout />,
-    children: [
-      {
-        index: true,
-        element: <Dashboard />,
-      },
-      { path: "dashboard",element: <Dashboard />},
-      { path: "/admin/components",element: <Components />},
-      { path: "/admin/admin-theme-change",element: <AdminThemeChange />},
-      { path: "/admin/global-theme-change",element: <GlobalThemeChange />},
-      { path: "/admin/theme-logs",element: <ChangeThemesLogs />},
-      { path: "/admin/settings",element: <Settings />},
-    ],
-  },
-  {
-    path:'/login',
-    element:<Login/>
-  }
+    {
+      path: "/admin",
+      element: <AdminLayout />,
+      children: [
+        {
+          index: true,
+          element: <Dashboard />,
+        },
+        { path: "dashboard", element: <Dashboard /> },
+        { path: "/admin/components", element: <Components /> },
+        { path: "/admin/admin-theme-change", element: <AdminThemeChange /> },
+        { path: "/admin/global-theme-change", element: <GlobalThemeChange /> },
+        { path: "/admin/theme-logs", element: <ChangeThemesLogs /> },
+        { path: "/admin/settings", element: <Settings /> },
+      ],
+    },
+    {
+      path: "/login",
+      element: <Login />,
+    },
+    {
+      path: "/register",
+      element: <Login />,
+    },
   ]);
   return (
     <>

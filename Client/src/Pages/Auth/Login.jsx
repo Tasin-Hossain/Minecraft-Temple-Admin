@@ -11,8 +11,11 @@ import Button, {
 import { Link } from "react-router-dom";
 import { FaDiscord } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+import Loader from "../../Components/Loader";
 
 const Login = () => {
+  // Loader
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +41,7 @@ const Login = () => {
 
         {/* Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-5">
+          <div className="space-y-4">
             {/* Email Field */}
             <div>
               <Input
@@ -97,12 +100,21 @@ const Login = () => {
 
           {/* Submit Button */}
           <div>
-            <Button
-              type="submit"
-              className="w-full py-3.5 flex justify-center uppercase"
-            >
-              Sign In
-            </Button>
+            {loading ? (
+              <Button
+                type="submit"
+                className="w-full py-3 flex justify-center uppercase"
+              >
+                <Loader size={20} />
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                className="w-full py-3 flex justify-center uppercase"
+              >
+                Sign In
+              </Button>
+            )}
           </div>
 
           {/* Sign up link */}
@@ -117,8 +129,22 @@ const Login = () => {
         </form>
 
         <div className="flex items-center justify-between">
-          <DiscordButton children="Login with Discord" icon={<FaDiscord />} />
-          <GoogleButton children="Continue with Google" icon={<FcGoogle/>}/>
+          {
+            loading ?(
+
+              <DiscordButton  children="Login with Discord" icon={<Loader size={20} />} />
+            ):(
+              <DiscordButton  children="Login with Discord" icon={<FaDiscord />} />
+            )
+          }
+          {
+            loading ?(
+
+              <GoogleButton  children="Continue with Google" icon={<Loader size={20} />} />
+            ):(
+              <GoogleButton children="Continue with Google" icon={<FcGoogle />} />
+            )
+          }
         </div>
       </div>
     </div>
