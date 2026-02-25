@@ -9,6 +9,7 @@ import ChangeThemesLogs from "./Admin/Pages/Themes/ChangeThemesLogs";
 import AdminThemeChange from "./Admin/Pages/Themes/AdminThemeChange";
 import Login from "./Pages/Auth/Login";
 import Settings from "./Admin/Pages/Settings";
+import Register from "./Pages/Auth/Register";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -34,7 +35,7 @@ const App = () => {
     },
     {
       path: "/register",
-      element: <Login />,
+      element: <Register />,
     },
   ]);
   return (
