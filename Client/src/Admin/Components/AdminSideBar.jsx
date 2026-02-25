@@ -10,6 +10,21 @@ import {  FaRegUser  } from "react-icons/fa";
 import { LuLogOut } from "react-icons/lu";
 import { IoSettingsOutline } from "react-icons/io5";
 import { TbWaveSawTool } from "react-icons/tb";
+import { BsBoxSeam } from "react-icons/bs";
+import { PiUsersThree } from "react-icons/pi";
+import { MdOutlineLibraryBooks } from "react-icons/md";
+import { TbHandClick } from "react-icons/tb";
+import { BiMoneyWithdraw } from "react-icons/bi";
+import { RiAdvertisementLine } from "react-icons/ri";
+import { MdOutlineCategory } from "react-icons/md";
+import { LuTicket } from "react-icons/lu";
+import { BiMenu } from "react-icons/bi";
+import { MdOutlineConnectedTv } from "react-icons/md";
+import { RiBrush3Line } from "react-icons/ri";
+import { LuBrain } from "react-icons/lu";
+import { TiShoppingCart } from "react-icons/ti";
+import { PiLightbulbLight } from "react-icons/pi";
+import { GrMultiple } from "react-icons/gr";
 
 const menu = [
   {
@@ -18,29 +33,119 @@ const menu = [
     path: "/admin",
   },
   {
-    name: "Themes",
-    icon: FiMoon,
+    name: "Products",
+    icon: BsBoxSeam ,
     children: [
-      { name: "Components", path: "/admin/components" },
-      { name: "Admin Theme", path: "/admin/admin-theme-change" },
-      { name: "Global Theme", path: "/admin/global-theme-change" },
-      { name: "Theme Logs", path: "/admin/theme-logs" },
+      { name: "All Products", path: "/admin/products" },
+      { name: "Add Products", path: "/admin/add-products" },
+    ],
+  },
+  {
+    name: "Members",
+    icon: PiUsersThree,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
     ],
   },
   {
     name: "Orders",
-    icon: FiMoon,
+    icon: TiShoppingCart,
     children: [
-      { name: "All Orders", path: "/admin/orders" },
-      { name: "Pending", path: "/admin/orders/pending" },
-      { name: "Completed", path: "/admin/orders/completed" },
+      { name: "All Orders", path: "/admin/products" },
     ],
   },
   {
-    name: "Products",
-    icon: MdOutlineDashboard,
-    path: "/admin/products",
+    name: "Records",
+    icon: MdOutlineLibraryBooks,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
+    ],
   },
+  {
+    name: "Withdrawls",
+    icon: TbHandClick,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
+    ],
+  },
+  {
+    name: "Transactions",
+    icon: BiMoneyWithdraw ,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
+    ],
+  },
+  {
+    name: "Advertisement",
+    icon: RiAdvertisementLine,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
+    ],
+  },
+  {
+    name: "Categories",
+    icon: MdOutlineCategory,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
+    ],
+  },
+  {
+    name: "Tickets",
+    icon: LuTicket,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
+    ],
+  },
+  {
+    name: "Navigations",
+    icon: BiMenu,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
+    ],
+  },
+  {
+    name: "Blogs",
+    icon: MdOutlineConnectedTv,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
+    ],
+  },
+  {
+    name: "Appearance",
+    icon: RiBrush3Line,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
+    ],
+  },
+  {
+    name: "AI Magic",
+    icon: LuBrain,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
+    ],
+  },
+  {
+    name: "Settings",
+    icon: IoSettingsOutline,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
+    ],
+  },
+  {
+    name: "Sections",
+    icon: GrMultiple,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
+    ],
+  },
+  {
+    name: "System",
+    icon: PiLightbulbLight,
+    children: [
+      { name: "All Orders", path: "/admin/products" },
+    ],
+  },
+  
 ];
 
 /* ================= SIDEBAR ================= */
@@ -110,7 +215,7 @@ export default function SideBar({ expanded }) {
       </div>
 
       {/* SCROLLABLE MENU */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-3 flex flex-col gap-2 sidebar-scroll">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-3 flex flex-col gap-1 sidebar-scroll">
         {menu.map((item, i) => (
           <MenuItem
             key={i}
@@ -269,10 +374,10 @@ const MenuItem = memo(({ item, expanded, pathname, isOpen, toggle }) => {
           onClick={() => children && toggle(name)}
           className={`
             group relative w-full flex items-center justify-between
-            px-4 py-3 rounded-sm transition-all duration-200 f
+            px-4 py-3 rounded-sm transition-all duration-200 
             ${
               isActive
-                ? " bg-(--theme) text-(--text) shadow-[inset_0_4px_0px_rgb(var(--theme)/0.5),inset_0_-5px_0px_#ff791a]"
+                ? " bg-(--theme) text-(--text) "
                 : " hover:bg-(--sidebar-hover) font-semibold"
             }
           `}
@@ -280,7 +385,7 @@ const MenuItem = memo(({ item, expanded, pathname, isOpen, toggle }) => {
           <div className="flex items-center gap-2">
             <Icon size={20} />
             {expanded && (
-              <span className="text-[14px] font-medium whitespace-nowrap">
+              <span className="text-sm font-medium whitespace-nowrap">
                 {name}
               </span>
             )}
@@ -297,14 +402,14 @@ const MenuItem = memo(({ item, expanded, pathname, isOpen, toggle }) => {
 
         {/* SUB MENU (Expanded Mode) */}
         {children && expanded && isOpen && (
-          <div className=" mt-2 flex flex-col gap-2 pl-4 transition">
+          <div className=" flex flex-col gap-2 pl-6 transition">
             <div></div>
             {children.map((child) => {
               const childActive = pathname === child.path;
               return (
                 <div className="flex items-center gap-2 ">
                   <div
-                    className={`${childActive ? "bg-(--theme)" : "bg-(--text-color)"} w-1 h-1 rounded-full`}
+                    className={`bg-(--theme)  w-1 h-1 rounded-full `}
                   >
                     {""}
                   </div>
@@ -312,7 +417,7 @@ const MenuItem = memo(({ item, expanded, pathname, isOpen, toggle }) => {
                     key={child.name}
                     to={child.path}
                     className={`
-                    text-[14px] px-4 w-full py-3 rounded-md transition 
+                    text-sm px-2 w-full py-3 rounded-md transition 
                     ${
                       childActive
                         ? "text-(--theme) bg-(--sidebar-hover)"
