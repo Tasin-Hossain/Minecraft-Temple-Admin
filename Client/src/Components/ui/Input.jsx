@@ -12,7 +12,7 @@ export const Input = ({ label,className, placeholder,id, type = "text", ...props
         id={id}
         type={type}
         placeholder={placeholder}
-        className={`block w-full rounded-md border bg-(--card-foreground) border-(--border) px-4 py-2.5 text-(--text) placeholder-(--muted-text) outline-none focus:border-(--theme) text-[14px] ${className}`}
+        className={`block w-full rounded-md border bg-(--card-foreground) border-(--border) px-4 py-2.5 text-(--muted-text) placeholder-(--muted-text) outline-none focus:border-(--theme) text-[14px] ${className}`}
         {...props}
       />
     </div>
