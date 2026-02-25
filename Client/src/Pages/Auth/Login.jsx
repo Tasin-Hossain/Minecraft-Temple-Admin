@@ -28,6 +28,14 @@ const Login = () => {
 
   return (
     <div className="min-h-screen  flex items-center justify-center px-4 transition-colors duration-300">
+      {/* Image 1 */}
+      <div className="w-35 absolute left-1/4 top-1/8">
+        <img src="./src/Assets/Auth/Logo1.png" alt="logo" className="w-full" />
+      </div>
+      {/* image 2 */}
+      <div className="w-35 absolute right-1/4 bottom-1/9">
+        <img src="./src/Assets/Auth/Logo2.png" alt="logo" className="w-full" />
+      </div>
       <div className="max-w-md w-full space-y-8 bg-(--card) p-8 rounded-md border border-(--border)">
         {/* Logo / Heading */}
         <div className="text-center">
