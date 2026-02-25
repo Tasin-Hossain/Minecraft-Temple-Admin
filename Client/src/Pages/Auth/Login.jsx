@@ -28,7 +28,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen  flex items-center justify-center px-4 transition-colors duration-300">
-      <div className="max-w-md w-full space-y-8 bg-(--card) p-8 rounded-md shadow-xl border border-(--border)">
+      <div className="max-w-md w-full space-y-8 bg-(--card) p-8 rounded-md border border-(--border)">
         {/* Logo / Heading */}
         <div className="text-center">
           <div className="w-15 mx-auto">
@@ -46,9 +46,9 @@ const Login = () => {
             <div>
               <Input
                 required
-                label="Email"
+                label="Email or Username"
                 id="email"
-                placeholder="name@example.com"
+                placeholder="username@example.com"
                 name="email"
                 type="email"
                 value={email}
@@ -129,22 +129,22 @@ const Login = () => {
         </form>
 
         <div className="flex items-center justify-between">
-          {
-            loading ?(
-
-              <DiscordButton  children="Login with Discord" icon={<Loader size={20} />} />
-            ):(
-              <DiscordButton  children="Login with Discord" icon={<FaDiscord />} />
-            )
-          }
-          {
-            loading ?(
-
-              <GoogleButton  children="Continue with Google" icon={<Loader size={20} />} />
-            ):(
-              <GoogleButton children="Continue with Google" icon={<FcGoogle />} />
-            )
-          }
+          {loading ? (
+            <DiscordButton
+              children="Login with Discord"
+              icon={<Loader size={20} />}
+            />
+          ) : (
+            <DiscordButton children="Login with Discord" icon={<FaDiscord />} />
+          )}
+          {loading ? (
+            <GoogleButton
+              children="Continue with Google"
+              icon={<Loader size={20} />}
+            />
+          ) : (
+            <GoogleButton children="Continue with Google" icon={<FcGoogle />} />
+          )}
         </div>
       </div>
     </div>
