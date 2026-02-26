@@ -11,6 +11,7 @@ import Login from "./Pages/Auth/Login";
 import Settings from "./Admin/Pages/Settings";
 import Register from "./Pages/Auth/Register";
 import Verify from "./Pages/Auth/Verify";
+import TwoFactorVerify from "./Pages/Auth/TwoFactorVerify";
 
 const App = () => {
   // Admin
@@ -43,6 +44,10 @@ const App = () => {
     {
       path:"/verify",
       element:<Verify/>,
+    },
+    {
+      path:"/2fa",
+      element:<TwoFactorVerify/>,
     }
   ]);
   return (
