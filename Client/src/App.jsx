@@ -12,6 +12,7 @@ import Settings from "./Admin/Pages/Settings";
 import Register from "./Pages/Auth/Register";
 import TwoFactorVerify from "./Pages/Auth/TwoFactorVerify";
 import Verify from "./Pages/Auth/Verify";
+import VerifyEmail from "./Pages/Auth/VerifyEmail";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -44,8 +45,12 @@ const App = () => {
       element: <Verify />,
     },
     {
-      path: "/2fa",
+      path: "/2fa/verify",
       element: <TwoFactorVerify />,
+    },
+    {
+      path: "/verify-email",
+      element: <VerifyEmail />,
     },
   ]);
   return (
