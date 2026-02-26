@@ -2,7 +2,7 @@ import React from 'react';
 
 export const Input = ({ label,className, placeholder,id, type = "text", ...props }) => {
   return (
-    <div className="space-y-1.5">
+    <div className="w-full space-y-1.5">
       {label && (
         <label htmlFor={id} className="block text-[14px] opacity-90">
           {label}
