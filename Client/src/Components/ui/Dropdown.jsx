@@ -11,12 +11,11 @@ export default function Dropdown({
   menuClassName = '',
   itemClassName = '',
   disabled = false,
-  width = 'w-56',
+  width = 'w-auto',
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
 
-  // Click outside to close
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (ref.current && !ref.current.contains(event.target)) {
@@ -24,69 +23,53 @@ export default function Dropdown({
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const selectedText = value || placeholder;
 
   return (
     <div className={`relative inline-block text-left ${className}`} ref={ref}>
-      {/* Trigger Button */}
       <button
         type="button"
         disabled={disabled}
         className={`
           inline-flex w-full justify-between items-center gap-2
-          rounded-lg border border-gray-300 bg-white 
-          px-4 py-2.5 text-sm font-medium text-gray-900
-          shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
-          transition-all duration-150
+          rounded-md border border-(--border) bg-(--card-foreground) 
+          px-4 py-2.5 text-sm font-medium text-(--muted-text)
+           hover:border-(--theme) cursor-pointer transition
           disabled:opacity-60 disabled:cursor-not-allowed
           ${triggerClassName}
         `}
-        onClick={() => !disabled && setIsOpen((prev) => !prev)}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
       >
         <span className="truncate">{selectedText}</span>
-        <svg
-          className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            fillRule="evenodd"
-            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-            clipRule="evenodd"
-          />
+        <svg className={`h-5 w-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
         </svg>
       </button>
 
-      {/* Dropdown Menu */}
       {isOpen && (
         <div
           className={`
-            absolute right-0 z-10 mt-2 ${width} origin-top-right
-            rounded-md bg-white shadow-xl ring-1 ring-black ring-opacity-5
-            focus:outline-none transform transition-all duration-150
-            scale-95 opacity-0 animate-in fade-in zoom-in-95
+            absolute left-0 z-50 mt-2 ${width}
+            rounded-md bg-(--card-foreground) border border-(--border)
+            max-h-auto overflow-y-hidden
             ${menuClassName}
           `}
         >
-          <div className="py-1">
-            {options.map((option) => (
+          {options.length === 0 ? (
+            <div className="px-4 py-3 text-sm text-(--muted-text)">
+              No options available
+            </div>
+          ) : (
+            options.map((option) => (
               <button
                 key={option}
                 type="button"
                 className={`
-                  group flex w-full items-center px-4 py-2.5 text-sm
-                  ${option === value
-                    ? 'bg-indigo-50 text-indigo-700 font-medium'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                  }
-                  transition-colors duration-100
+                  w-full text-left px-4 py-2.5 text-sm cursor-pointer
+                  ${option === value ? 'bg-(--hover) text-(--theme)' : 'text-(--muted-text) hover:bg-(--hover)'}
                   ${itemClassName}
                 `}
                 onClick={() => {
@@ -95,12 +78,10 @@ export default function Dropdown({
                 }}
               >
                 {option}
-                {option === value && (
-                  <span className="ml-auto text-indigo-600 group-hover:text-indigo-700">✓</span>
-                )}
+                {option === value && <span className="float-right">✓</span>}
               </button>
-            ))}
-          </div>
+            ))
+          )}
         </div>
       )}
     </div>
