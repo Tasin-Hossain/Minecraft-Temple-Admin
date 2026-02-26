@@ -10,8 +10,10 @@ import AdminThemeChange from "./Admin/Pages/Themes/AdminThemeChange";
 import Login from "./Pages/Auth/Login";
 import Settings from "./Admin/Pages/Settings";
 import Register from "./Pages/Auth/Register";
+import Verify from "./Pages/Auth/Verify";
 
 const App = () => {
+  // Admin
   const router = createBrowserRouter([
     {
       path: "/admin",
@@ -29,6 +31,7 @@ const App = () => {
         { path: "/admin/settings", element: <Settings /> },
       ],
     },
+    // Auth
     {
       path: "/login",
       element: <Login />,
@@ -37,6 +40,10 @@ const App = () => {
       path: "/register",
       element: <Register />,
     },
+    {
+      path:"/verify",
+      element:<Verify/>,
+    }
   ]);
   return (
     <>
