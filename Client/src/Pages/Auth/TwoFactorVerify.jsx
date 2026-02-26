@@ -70,11 +70,12 @@ const TwoFactorVerify = () => {
           <div className="flex gap-3">
 
             {loading ? (
-              <Loader />
+              <Button >
+                <Loader size={18}/>
+              </Button>
             ) : (
               <Button
                 
-                className=""
               >
                 Confirm
               </Button>
