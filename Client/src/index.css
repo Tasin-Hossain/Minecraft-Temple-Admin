@@ -8,12 +8,12 @@
 
   --bg: #ffffff;
 
-  --text-wh: #fff;
+  --text-wh: #161616;
   --text: #313030;
   --muted-text: #4b4b52;
   --foreground: #1c1c1f;
 
-  --tooltip-bg: #262626;
+  --tooltip-bg: #2f2f2f;
   --tooltip-hover: #ffffff12;
 
   --dropdown-bg: #ffffff;
@@ -27,7 +27,7 @@
   --accent-foreground: #2f2f33;
 
   --destructive: #e11d48;        
-  --border: #e5e5e7;
+  --border:  #0000001a;
   --btn-border: #7e7e87;
 
   --card: #ffffff;
@@ -48,6 +48,8 @@
   --chart-4: #6d28d9;
   --chart-5: #5b21b6;
 
+  --hover: #00000024;
+
   --sidebar: #ffffff;
   --sidebar-hover: #00000024;
   --sidebar-foreground: #1c1c1f;
@@ -59,6 +61,10 @@
   --sidebar-ring: #8b5cf6;
   --sidebar-scroll: #cbd5e1;
   --sidebar-scroll-hover: #535961;
+
+  --status-active: #a4f4cf;
+  --status-blocked: #ffc9c9;
+  --status-suspended: #7a7575be;
   
 }
 
@@ -105,7 +111,9 @@
   --chart-3: #7c3aed;
   --chart-4: #6d28d9;
   --chart-5: #5b21b6;
+
   --hover: #404040;
+
   --sidebar: #262626;
   --sidebar-hover: #404040;
   --sidebar-foreground: #1c1c1f;
@@ -117,12 +125,16 @@
   --sidebar-ring: #8b5cf6;
   --sidebar-scroll: #cbd5e1;
   --sidebar-scroll-hover: #535961;
+
+  --status-active: #404040;
+  --status-blocked: #404040;
+  --status-suspended: #404040;
   
 }
 
 @layer base {
   body {
-    @apply text-(--text-color) tracking-wide bg-(--background) font-["Noto_Sans",sans-serif] ;
+    @apply text-(--text-color) tracking-wide bg-(--background) font-["Noto_Sans",sans-serif] overflow-x-hidden;
   }
   p{
     @apply text-(--muted-text) font-light text-base;
@@ -134,6 +146,10 @@
 @layer components{
   .btn{
     @apply flex items-center gap-2 px-4 py-2 bg-(--card-foreground) border border-(--border) cursor-pointer rounded-md hover:brightness-90 transition text-sm font-medium;
+  }
+  
+  .title{
+    @apply text-2xl;
   }
 
 }
