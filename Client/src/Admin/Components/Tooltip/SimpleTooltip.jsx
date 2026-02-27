@@ -20,7 +20,7 @@ export function SimpleTooltip({
       className="
         relative
         bg-(--tooltip-bg)
-        text-(--text-wh)
+        text-white
         px-4 py-2
         rounded-md
         text-sm font-medium

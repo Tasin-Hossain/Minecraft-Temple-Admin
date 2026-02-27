@@ -19,7 +19,7 @@ export function MenuTooltip({
       className="
         relative
           bg-(--tooltip-bg)
-        text-(--text-wh)
+        text-white
         px-2 py-2
         min-w-30
         rounded-md
