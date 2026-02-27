@@ -114,21 +114,41 @@ export default function Button({
   onClick,
   type = "button",
   disabled = false,
+  variant = "primary",  
+  size = "md",         
 }) {
+  // Variant styles
+  const variantStyles = {
+    primary: "bg-(--theme) hover:brightness-110 text-white border-(--theme)",
+    outline: "bg-(--hover) border border-(--border) text-(--muted-text) hover:bg-transprate hover:text-(--text-wh)",
+    ghost:   "bg-transparent hover:bg-(--hover) text-(--muted-text) border-none",
+    danger:  "bg-red-600 hover:brightness-110 text-white border-red-600",
+   
+  };
+
+  // Size styles
+  const sizeStyles = {
+    sm: "px-3 py-1.5 text-xs min-w-[2.25rem]",
+    md: "px-4 py-2 text-sm",
+    lg: "px-6 py-3 text-base",
+  };
+
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
       className={`
-        flex items-center gap-2 px-4 py-2 bg-(--theme) cursor-pointer text-white rounded-md hover:brightness-90 transition text-sm font-medium
+        inline-flex items-center justify-center gap-2 rounded-md font-medium transition-all
+       
+        disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer 
+        ${variantStyles[variant] || variantStyles.primary}
+        ${sizeStyles[size] || sizeStyles.md}
         ${className}
       `.replace(/\s+/g, " ").trim()}
     >
       {icon && (
-        <span className="text-[18px]">
-          {icon}
-        </span>
+        <span className="text-[1.125rem]">{icon}</span>
       )}
       {children}
     </button>

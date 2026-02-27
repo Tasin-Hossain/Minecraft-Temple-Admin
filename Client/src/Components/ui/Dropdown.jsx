@@ -12,6 +12,7 @@ export default function Dropdown({
   itemClassName = '',
   disabled = false,
   width = 'w-auto',
+  placement = 'bottom', // নতুন prop — ডিফল্ট bottom
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
@@ -37,7 +38,7 @@ export default function Dropdown({
           inline-flex w-full justify-between items-center gap-2
           rounded-md border border-(--border) bg-(--card-foreground) 
           px-4 py-2.5 text-sm font-medium text-(--muted-text)
-           hover:border-(--theme) cursor-pointer transition
+          hover:border-(--theme) cursor-pointer transition
           disabled:opacity-60 disabled:cursor-not-allowed
           ${triggerClassName}
         `}
@@ -52,9 +53,10 @@ export default function Dropdown({
       {isOpen && (
         <div
           className={`
-            absolute left-0 z-50 mt-2 ${width}
+            absolute left-0 z-50 ${width}
             rounded-md bg-(--card-foreground) border border-(--border)
-            max-h-auto overflow-y-hidden
+            shadow-lg max-h-auto overflow-y-auto
+            ${placement === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}
             ${menuClassName}
           `}
         >
