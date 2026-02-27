@@ -13,9 +13,11 @@ import Register from "./Pages/Auth/Register";
 import TwoFactorVerify from "./Pages/Auth/TwoFactorVerify";
 import Verify from "./Pages/Auth/Verify";
 import VerifyEmail from "./Pages/Auth/VerifyEmail";
+import AllUsers from "./Admin/Pages/Users/AllUsers";
 
 const App = () => {
   const router = createBrowserRouter([
+    // Admin
     {
       path: "/admin",
       element: <AdminLayout />,
@@ -24,14 +26,21 @@ const App = () => {
           index: true,
           element: <Dashboard />,
         },
+      
         { path: "dashboard", element: <Dashboard /> },
+
+        { path: "/admin/all-users", element: <AllUsers /> },
+
         { path: "/admin/components", element: <Components /> },
         { path: "/admin/admin-theme-change", element: <AdminThemeChange /> },
         { path: "/admin/global-theme-change", element: <GlobalThemeChange /> },
         { path: "/admin/theme-logs", element: <ChangeThemesLogs /> },
+        
+        // Profile
         { path: "/admin/settings", element: <Settings /> },
       ],
     },
+    // Auth
     {
       path: "/login",
       element: <Login />,
