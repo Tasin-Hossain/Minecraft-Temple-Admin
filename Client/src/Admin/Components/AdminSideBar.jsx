@@ -33,18 +33,16 @@ const menu = [
     path: "/admin",
   },
   {
+    name: "Members",
+    icon: PiUsersThree,
+    path: "/admin/all-members"
+  },
+  {
     name: "Products",
     icon: BsBoxSeam ,
     children: [
       { name: "All Products", path: "/admin/products" },
       { name: "Add Products", path: "/admin/add-products" },
-    ],
-  },
-  {
-    name: "Members",
-    icon: PiUsersThree,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
     ],
   },
   {
