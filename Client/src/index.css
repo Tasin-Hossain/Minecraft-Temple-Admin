@@ -134,7 +134,7 @@
 
 @layer base {
   body {
-    @apply text-(--text-color) tracking-wide bg-(--background) font-["Noto_Sans",sans-serif] overflow-x-hidden;
+    @apply text-[14px] text-(--text-color) tracking-wide bg-(--background) font-["Noto_Sans",sans-serif] overflow-x-hidden;
   }
   p{
     @apply text-(--muted-text) font-light text-base;
@@ -147,7 +147,9 @@
   .btn{
     @apply flex items-center gap-2 px-4 py-2 bg-(--card-foreground) border border-(--border) cursor-pointer rounded-md hover:brightness-90 transition text-sm font-medium;
   }
-  
+  .btn-outline{
+    @apply bg-(--hover) border border-(--border) text-(--muted-text) py-2 px-3.5 rounded-md;
+  }
   .title{
     @apply text-2xl;
   }
