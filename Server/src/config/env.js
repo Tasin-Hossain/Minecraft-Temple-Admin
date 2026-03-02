@@ -15,7 +15,6 @@ export const config = {
 
   APP_URL: process.env.APP_URL,
 
-  RATE_LIMIT_WINDOW_MS: Number(process.env.RATE_LIMIT_WINDOW_MS) || 900000, 
-  RATE_LIMIT_MAX: Number(process.env.RATE_LIMIT_MAX) || 100,
+  RATE_LIMIT_WINDOW_MS: Number(process.env.RATE_LIMIT_WINDOW_MS), 
+  RATE_LIMIT_MAX: Number(process.env.RATE_LIMIT_MAX),
 };
-
