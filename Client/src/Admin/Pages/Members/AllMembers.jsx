@@ -201,7 +201,7 @@ const AllMembers = () => {
                             alt={`${user.username}'s avatar`}
                             className="h-10 w-10 rounded-full object-cover border border-gray-200 shadow-sm"
                             onError={(e) => {
-                              e.target.src = `https://via.placeholder.com/40?text=${user.name[0]}`;
+                              e.target.src = `https://via.placeholder.com/40?text=${user.username[0]}`;
                             }}
                           />
                         </div>
@@ -227,6 +227,7 @@ const AllMembers = () => {
                             <IconButton
                               icon={<MdOutlineEdit />}
                               className="border-(--theme)/25 text-(--muted-text)"
+                              onClick={()=> navigate(`/admin/all-members/edit/${user.id}`)}
                             />
                           </Tooltip>
 
