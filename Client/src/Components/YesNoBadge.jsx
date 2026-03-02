@@ -15,8 +15,8 @@ const YesNoBadge = ({ value, withIcon = true, size = "default", className = "" }
       className={`
         inline-flex items-center  rounded-md
         ${value 
-          ? "bg-green-500 text-(--text-wh)" 
-          : "bg-red-400 text-(--text-wh) "}
+          ? "bg-green-500 text-white" 
+          : "bg-red-400 text-white "}
         ${sizeStyles}
         ${className}
       `}

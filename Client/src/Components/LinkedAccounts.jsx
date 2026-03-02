@@ -56,7 +56,7 @@ const LinkedAccountsButtons = ({ user }) => {
         return (
           <button
             key={index}
-            className={`cursor-pointer flex gap-2 items-center px-4 py-2 rounded-lg font-medium text-[14px] border border-(--border) transition-all ease-in duration-200 ${styleClasses}`}
+            className={`cursor-pointer flex gap-2 items-center px-2 py-1 rounded-lg font-medium text-[14px] border border-(--border) transition-all ease-in duration-200 ${styleClasses}`}
           >
             {Icon}
             <span className="capitalize">{p.provider}</span>
