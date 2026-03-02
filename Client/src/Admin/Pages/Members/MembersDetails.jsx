@@ -34,6 +34,7 @@ import { TiShoppingCart } from "react-icons/ti";
 import { FiDownload } from "react-icons/fi";
 import LinkedAccountsButtons from "../../../Components/LinkedAccounts";
 import { FaBan } from "react-icons/fa";
+import { Input } from "../../../Components/ui/Input";
 
 const UserDetailAdmin = () => {
   const { userId } = useParams();
@@ -125,16 +126,15 @@ const UserDetailAdmin = () => {
   return (
     <div className="min-h-auto bg-(--card) rounded-md border border-(--border)">
       <div className="mx-auto px-6 py-6">
-
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          {/* Back to Member List */}
+          {/* Back */}
           <Button
             icon={<IoMdArrowBack />}
             variant="outline"
             onClick={() => navigate(-1)}
           >
-            Back to Member List
+            Back 
           </Button>
 
           {/* joined and updated */}
@@ -151,14 +151,14 @@ const UserDetailAdmin = () => {
         {/* Main Card */}
         <div className="bg-(--card) rounded-md border border-(--border) overflow-hidden divide-y divide-(--border)">
           {/* banner */}
-          <div className="w-full">
+          <div className="w-full overflow-hidden ">
             <img
               src={
                 user.banner ||
                 `https://via.placeholder.com/200/111827/22c55e?text=${user.username?.[0] || "?"}`
               }
               alt={user.username}
-              className="w-full"
+              className="w-full h-full object-cover object-center"
             />
           </div>
 
@@ -173,7 +173,7 @@ const UserDetailAdmin = () => {
                     `https://via.placeholder.com/200/111827/22c55e?text=${user.username?.[0] || "?"}`
                   }
                   alt={user.username}
-                  className="w-30 h-30 rounded-md object-cover border-2 border-(--border) transition-all duration-500 "
+                  className="w-32 h-30 rounded-md object-cover border-2 border-(--border) transition-all duration-500 "
                 />
 
                 <div className="flex flex-col gap-2">
@@ -221,7 +221,7 @@ const UserDetailAdmin = () => {
                     <div className="flex items-center gap-1">
                       <FiDownload size={19} />
                       <h1 className="mb-0 text-(--muted-text) text-[14px]">
-                        <span className="text-(--theme) font-bold text-[14px]" >
+                        <span className="text-(--theme) font-bold text-[14px]">
                           {user.totalDownloads || 0}
                         </span>{" "}
                         Downloads
@@ -231,8 +231,10 @@ const UserDetailAdmin = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button icon={<MdOutlineModeEdit/>}>Edit</Button>
-                <Button variant="outline" icon={<FaBan />}>Ban {user.username}</Button>
+                <Button icon={<MdOutlineModeEdit />} onClick={()=> navigate(`/admin/all-members/edit/${user.id}`)}>Edit</Button>
+                <Button variant="outline" icon={<FaBan />}>
+                  Ban {user.username}
+                </Button>
               </div>
             </div>
           </div>
@@ -255,7 +257,7 @@ const UserDetailAdmin = () => {
               ))}
             </div>
           </div>
-          
+
           {/*  Security, Account, Preferences */}
           <div className="flex justify-evenly py-4 px-4">
             {/* Security & Auth */}
@@ -264,35 +266,39 @@ const UserDetailAdmin = () => {
                 <MdSecurity size={20} /> Security & Auth
               </h1>
               <div className="space-y-8 ">
-               
-               {/* 2fa enabled */}
+                {/* 2fa enabled */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[14px] text-(--muted-text)">2FA Enabled</span>
-                  <YesNoBadge
-                    value={user.twoFactor?.enabled ?? false}
-                  />
+                  <span className="text-[14px] text-(--muted-text)">
+                    2FA Enabled
+                  </span>
+                  <YesNoBadge value={user.twoFactor?.enabled ?? false} />
                 </div>
 
                 {/* email verified */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[14px] text-(--muted-text)">Email Verified</span>
+                  <span className="text-[14px] text-(--muted-text)">
+                    Email Verified
+                  </span>
                   <YesNoBadge value={user.isVerified} />
                 </div>
 
                 {/* password reset */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[14px] text-(--muted-text)">Password Reset Pending</span>
-                    <YesNoBadge value={user.resetPasswordToken} />
+                  <span className="text-[14px] text-(--muted-text)">
+                    Password Reset Pending
+                  </span>
+                  <YesNoBadge value={user.resetPasswordToken} />
                 </div>
-                
+
                 {/* acctive sessions */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[14px] text-(--muted-text)">Active Sessions</span>
+                  <span className="text-[14px] text-(--muted-text)">
+                    Active Sessions
+                  </span>
                   <span className="text-(--theme) font-bold text-[20px]">
                     {user.refreshTokens?.length || 0}
                   </span>
                 </div>
-
               </div>
             </div>
 
@@ -303,28 +309,37 @@ const UserDetailAdmin = () => {
               </h1>
 
               <div className="space-y-8 ">
-
                 {/* user status */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[14px] text-(--muted-text)">Current Status</span>
+                  <span className="text-[14px] text-(--muted-text)">
+                    Current Status
+                  </span>
                   <StatusBadge status={user.status} />
                 </div>
 
                 {/* last login */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[14px] text-(--muted-text)">Last Login</span>
-                  <span className="text-[14px] text-(--muted-text)">{lastLogin}</span>
+                  <span className="text-[14px] text-(--muted-text)">
+                    Last Login
+                  </span>
+                  <span className="text-[14px] text-(--muted-text)">
+                    {lastLogin}
+                  </span>
                 </div>
 
                 {/* loged in now */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[14px] text-(--muted-text)">Logged In Now</span>
+                  <span className="text-[14px] text-(--muted-text)">
+                    Logged In Now
+                  </span>
                   <YesNoBadge value={user.isLoggedIn} />
                 </div>
 
                 {/* stay log in  */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[14px] text-(--muted-text)">Stay Logged In</span>
+                  <span className="text-[14px] text-(--muted-text)">
+                    Stay Logged In
+                  </span>
                   <YesNoBadge value={user.stayLoggedIn} />
                 </div>
               </div>
@@ -333,21 +348,24 @@ const UserDetailAdmin = () => {
             {/* Preferences & Connections */}
             <div className="w-[30%] py-6 px-8 bg-(--card-foreground) rounded-md border border-(--border) ">
               <h1 className="font-bold mb-8 flex items-center gap-2 justify-start">
-                <MdOutlineEmail size={20}/> Preferences
+                <MdOutlineEmail size={20} /> Preferences
               </h1>
 
               <div className="space-y-8 ">
-
-              {/* receiveUpdates */}
+                {/* receiveUpdates */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[14px] text-(--muted-text)">Receive Updates</span>
-                  <YesNoBadge value={user.receiveUpdates}  />
+                  <span className="text-[14px] text-(--muted-text)">
+                    Receive Updates
+                  </span>
+                  <YesNoBadge value={user.receiveUpdates} />
                 </div>
 
                 {/* agreedToTerms */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[14px] text-(--muted-text)">Agreed to Terms</span>
-                  <YesNoBadge value={user.agreedToTerms}  />
+                  <span className="text-[14px] text-(--muted-text)">
+                    Agreed to Terms
+                  </span>
+                  <YesNoBadge value={user.agreedToTerms} />
                 </div>
 
                 {/* link account */}
@@ -356,181 +374,108 @@ const UserDetailAdmin = () => {
                     Linked Accounts
                   </span>
 
-                  <LinkedAccountsButtons user={user}/>
+                  <LinkedAccountsButtons user={user} />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Profile Details  */}
-          <div className="py-4 px-4">
-            <h1 className="flex items-center gap-2 px-12">
+          <div className="py-6 px-6">
+            <h1 className="flex items-center gap-2 px-4 mb-6 text-lg font-semibold">
               <MdOutlinePerson size={25} /> Profile Information
             </h1>
 
             {profile ? (
-              <div className="flex flex-col">
+              <div className="space-y-8 px-8">
                 {/* Basic Info Cards */}
-                <div className="flex items-center justify-between px-20 py-4 border-b border-(--border)">
-                  <div className="flex flex-col  gap-2 w-[30%] ">
-                    {/* customTitle */}
-                    {profile.customTitle && (
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-[14px] font-bold text-(--text-wh)">
-                          Custom Title
-                        </h2>
-                      </div>
-                    )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* customTitle value*/}
+                  {profile.customTitle && (
+                    <div>
+                      <label className="block text-sm text-(--muted-text) mb-1">
+                        Custom Title
+                      </label>
+                      <Input value={profile.customTitle} />
+                    </div>
+                  )}
 
-                    {/* custom Tag line */}
-                    {profile.creatorTagLine && (
-                      <div className="flex items-center  gap-2 ">
-                        <h2 className="text-[14px] font-bold text-(--text-wh)">
-                          Tag Line
-                        </h2>
-                      </div>
-                    )}
+                  {/* custom Tag line value*/}
+                  {profile.creatorTagLine && (
+                    <div>
+                      <label className="block text-sm text-(--muted-text) mb-1">
+                        Custom TagLine
+                      </label>
+                      <Input value={profile.creatorTagLine} />
+                    </div>
+                  )}
 
-                    {/* Birthday */}
-                    {profile.dateOfBirth && (
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-[14px] font-bold text-(--text-wh)">
-                          Birthday
-                        </h2>
-                      </div>
-                    )}
+                  {/* Birthday value*/}
+                  {profile.dateOfBirth && (
+                    <div>
+                      <label className="block text-sm text-(--muted-text) mb-1">
+                        Birthday
+                      </label>
+                      <Input type="date" value={profile.dateOfBirth} />
+                    </div>
+                  )}
 
-                    {/* Location */}
-                    {profile.location && (
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-[14px] font-bold text-(--text-wh)">
-                          Custom Location
-                        </h2>
-                      </div>
-                    )}
+                  {/* Location value */}
+                  {profile.location && (
+                    <div>
+                      <label className="block text-sm text-(--muted-text) mb-1">
+                        Location
+                      </label>
+                      <Input value={profile.location} />
+                    </div>
+                  )}
 
-                    {/* gender */}
-                    {profile.Gender && (
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-[14px] font-bold text-(--text-wh)">
-                          Gender
-                        </h2>
-                      </div>
-                    )}
+                  {/* gender value*/}
+                  {profile.Gender && (
+                    <div>
+                      <label className="block text-sm text-(--muted-text) mb-1">
+                        Gender
+                      </label>
+                      <Input value={profile.Gender} />
+                    </div>
+                  )}
 
-                    {/* occupation */}
-                    {profile.occupation && (
-                      <div className="flex items-center  gap-2">
-                        <h2 className="text-[14px] font-bold text-(--text-wh)">
-                          Occupation
-                        </h2>
-                      </div>
-                    )}
+                  {/* occupation value*/}
+                  {profile.occupation && (
+                    <div>
+                      <label className="block text-sm text-(--muted-text) mb-1">
+                        Occupation
+                      </label>
+                      <Input value={profile.occupation} />
+                    </div>
+                  )}
 
-                    {/* website */}
-                    {profile.website && (
-                      <div className="flex items-center  gap-2">
-                        <h2 className="text-[14px] font-bold text-(--text-wh)">
-                          Website
-                        </h2>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-col  gap-2 w-[70%] ">
-                    {/* customTitle value*/}
-                    {profile.customTitle && (
-                      <div className="flex items-center justify-start gap-2">
-                        <p className="text-[14px]">{profile.customTitle}</p>
-                      </div>
-                    )}
-
-                    {/* custom Tag line value*/}
-                    {profile.creatorTagLine && (
-                      <div className="flex items-center justify-start gap-2 ">
-                        <p className="text-[14px]">{profile.creatorTagLine}</p>
-                      </div>
-                    )}
-
-                    {/* Birthday value*/}
-                    {profile.dateOfBirth && (
-                      <div className="flex items-center justify-start gap-2">
-                        <p className="text-[14px]">
-                          {new Date(profile.dateOfBirth).toLocaleDateString(
-                            "en-US",
-                            { dateStyle: "long" },
-                          )}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Location value */}
-                    {profile.location && (
-                      <div className="flex items-center justify-start gap-2">
-                        <p className="text-[14px] ">{profile.location}</p>
-                      </div>
-                    )}
-
-                    {/* gender value*/}
-                    {profile.Gender && (
-                      <div className="flex items-center justify-start gap-2">
-                        <p className="text-[14px] ">Gender</p>
-                      </div>
-                    )}
-
-                    {/* occupation value*/}
-                    {profile.occupation && (
-                      <div className="flex items-center justify-start gap-2">
-                        <p className="text-[14px]">Occupation</p>
-                      </div>
-                    )}
-
-                    {/* website value*/}
-                    {profile.website && (
-                      <div className="flex items-center justify-start gap-2">
-                        <p className="text-[14px] ">
-                          <a
-                            href={profile.website}
-                            target="_blank"
-                            className="text-[14px] text-(--theme) hover:underline break-all"
-                          >
-                            {profile.website}
-                          </a>
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  {/* website value*/}
+                  {profile.website && (
+                    <div>
+                      <label className="block text-sm text-(--muted-text) mb-1">
+                        website
+                      </label>
+                      <Input value={profile.website} />
+                    </div>
+                  )}
                 </div>
 
                 {/* Social Links */}
                 {Object.values(profile.socialLinks || {}).some((v) => v) && (
-                  <div className="border-b border-(--border) ">
-                    <h1 className="flex items-center gap-2 py-4 px-12">
-                      <IoEarth size={25} /> Social Information
-                    </h1>
-                    <div className="pb-4">
+                  <div className="pt-8 border-t border-(--border)">
+                    <h3 className="flex items-center gap-2 mb-5 font-semibold text-lg">
+                      <IoEarth size={22} /> Social Links
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {Object.entries(profile.socialLinks).map(
                         ([key, value]) =>
                           value ? (
-                            <div
-                              key={key}
-                              className=" flex items-center gap-2 px-20 mb-2 "
-                            >
-                              <h2 className="w-[30%] text-[14px] text-(--text-wh) capitalize font-bold">
+                            <div key={key}>
+                              <label className="block text-sm text-(--muted-text) mb-1 capitalize">
                                 {key}
-                              </h2>
-                              <div className="w-70%">
-                                <a
-                                  href={
-                                    value.startsWith("http")
-                                      ? value
-                                      : `https://${value}`
-                                  }
-                                  target="_blank"
-                                  className=" text-[14px] text-(--theme) hover:underline break-all"
-                                >
-                                  {value}
-                                </a>
-                              </div>
+                              </label>
+                              <Input value={profile.socialLinks[key] || ""} />
                             </div>
                           ) : null,
                       )}
@@ -540,11 +485,12 @@ const UserDetailAdmin = () => {
 
                 {/* About Me */}
                 {profile.aboutYou && (
-                  <div className="py-4">
-                    <h1 className="flex items-center gap-2 px-12">
-                      <MdOutlinePerson size={25} /> About
-                    </h1>
-                    <div className="px-20">
+                  <div className="pt-8 border-t border-(--border)">
+                    <label className="block text-sm font-medium mb-2">
+                      About You
+                    </label>
+
+                    <div className="w-full px-4 py-3 bg-(--card-foreground) border border-(--border) rounded-md resize-y ">
                       <div
                         className="py-2 px-6 rounded-md bg-(--card-foreground) text-[14px] prose prose-sm max-w-none"
                         dangerouslySetInnerHTML={{ __html: profile.aboutYou }}
