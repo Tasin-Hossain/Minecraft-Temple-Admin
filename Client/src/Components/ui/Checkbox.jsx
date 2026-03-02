@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 export const Checkbox = ({
-  id = 'custom-checkbox',
+  id: providedId,
   label,
   defaultChecked = false,
   checked,
@@ -9,14 +9,18 @@ export const Checkbox = ({
   className = '',
   ...props
 }) => {
+  // useId() is perfect for accessibility & uniqueness
+  const generatedId = useId();
+  const finalId = providedId || generatedId;
+
   return (
     <label
-      htmlFor={id}
-      className={`inline-flex items-center cursor-pointer select-none ${className}`}
+      htmlFor={finalId}
+      className={`flex items-center cursor-pointer select-none ${className}`}
     >
       <div className="relative inline-block">
         <input
-          id={id}
+          id={finalId}
           type="checkbox"
           defaultChecked={defaultChecked}
           checked={checked}
@@ -30,43 +34,33 @@ export const Checkbox = ({
           className={`
             w-4 h-4
             bg-transparent 
-            border-2 border-(--theme) rounded-sm 
-            transition-all duration-250
+            border-2 border-(--border) rounded
+            transition-all duration-200
             peer-checked:bg-(--theme)
             peer-checked:border-(--theme)
+            peer-focus:ring-2 peer-focus:ring-(--theme)/30
           `}
         />
 
-        {/* Checkmark (using borders) */}
-        <div
+        {/* Checkmark */}
+        <svg
           className={`
-            absolute inset-0 
-            after:content-[''] 
-            after:absolute 
-            after:left-0 after:top-0 
-            after:w-[1.05em] after:h-[1.05em] 
-            after:rounded-md 
-            after:border-0 
-            after:border-solid 
-            after:border-(--theme) 
-            after:transition-all after:duration-250 after:delay-100
-            peer-checked:after:left-[0.35em] 
-            peer-checked:after:top-[0.1em] 
-            peer-checked:after:w-[0.35em] 
-            peer-checked:after:h-[0.7em] 
-            peer-checked:after:border-0 
-            peer-checked:after:border-r-[0.15em] 
-            peer-checked:after:border-b-[0.15em] 
-            peer-checked:after:border-white
-            peer-checked:after:rotate-45 
-            peer-checked:after:bor 
-            peer-checked:after:border-t-0
+            absolute inset-0 w-4 h-4 pointer-events-none
+            opacity-0 peer-checked:opacity-100 transition-opacity duration-200
           `}
-        />
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
       </div>
 
       {label && (
-        <span className="ml-2 text-[14px] text-(--muted-text)">
+        <span className="ml-2.5 text-sm text-(--muted-text)">
           {label}
         </span>
       )}

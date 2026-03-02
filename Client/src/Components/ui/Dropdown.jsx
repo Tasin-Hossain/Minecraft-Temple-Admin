@@ -37,7 +37,7 @@ export default function Dropdown({
         className={`
           inline-flex w-full justify-between items-center gap-2
           rounded-md border border-(--border) bg-(--card-foreground) 
-          px-4 py-2.5 text-sm font-medium text-(--muted-text)
+          px-4 py-2.5 text-sm font-medium text-(--text--wh)
           hover:border-(--theme) cursor-pointer transition
           disabled:opacity-60 disabled:cursor-not-allowed
           ${triggerClassName}

@@ -26,7 +26,7 @@ export function ButtonPrimary({
     </button>
   );
 }
-export  function ButtonGreen({
+export function ButtonGreen({
   children,
   icon = null,
   className = "",
@@ -114,19 +114,17 @@ export default function Button({
   onClick,
   type = "button",
   disabled = false,
-  variant = "primary",  
-  size = "md",         
+  variant = "primary",
+  size = "md",
 }) {
-  // Variant styles
   const variantStyles = {
     primary: "bg-(--theme) hover:brightness-110 text-white border-(--theme)",
-    outline: "bg-(--hover) border border-(--border) text-(--muted-text) hover:bg-transprate hover:text-(--text-wh)",
-    ghost:   "bg-transparent hover:bg-(--hover) text-(--muted-text) border-none",
-    danger:  "bg-red-600 hover:brightness-110 text-white border-red-600",
-   
+    outline:
+      "bg-(--hover) border border-(--border) text-(--muted-text) hover:bg-transprate hover:text-(--text-wh)",
+    ghost: "bg-transparent hover:bg-(--hover) text-(--muted-text) border-none",
+    danger: "bg-red-600 hover:brightness-110 text-white border-red-600",
   };
 
-  // Size styles
   const sizeStyles = {
     sm: "px-3 py-1.5 text-xs min-w-[2.25rem]",
     md: "px-4 py-2 text-sm",
@@ -139,17 +137,17 @@ export default function Button({
       onClick={onClick}
       disabled={disabled}
       className={`
-        inline-flex items-center justify-center gap-2 rounded-md font-medium transition-all
+        inline-flex items-center tracking-normal justify-center gap-2 rounded-md font-medium transition-all
        
         disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer 
         ${variantStyles[variant] || variantStyles.primary}
         ${sizeStyles[size] || sizeStyles.md}
         ${className}
-      `.replace(/\s+/g, " ").trim()}
+      `
+        .replace(/\s+/g, " ")
+        .trim()}
     >
-      {icon && (
-        <span className="text-[1.125rem]">{icon}</span>
-      )}
+      {icon && <span className="text-[1.125rem]">{icon}</span>}
       {children}
     </button>
   );
@@ -169,7 +167,7 @@ export function DiscordButton({
       onClick={onClick}
       disabled={disabled}
       className={`
-        cursor-pointer text-zinc-200  flex gap-2 items-center bg-[#5865F2] px-4 py-2 rounded-lg font-medium text-[14px] hover:bg-[#3b4aed] transition-all ease-in duration-200
+        cursor-pointer tracking-normal text-zinc-200  flex gap-2 items-center bg-[#5865F2] px-4 py-2 rounded-lg  text-[14px] hover:bg-[#3b4aed] transition-all ease-in duration-200
         ${className}
       `}
     >
@@ -202,4 +200,3 @@ export function GoogleButton({
     </button>
   );
 }
-
