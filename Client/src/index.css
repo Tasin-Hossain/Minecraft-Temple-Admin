@@ -11,7 +11,7 @@
   --text-wh: #161616;
   --text: #313030;
   --muted-text: #4b4b52;
-  --foreground: #1c1c1f;
+  --foreground: #aaaaad;
 
   --tooltip-bg: #2f2f2f;
   --tooltip-hover: #ffffff12;
@@ -75,12 +75,12 @@
   --text-wh: #dedede;
   --text: #252323;
   --muted-text: #aeaeae;
-  --foreground: #1c1c1f;
+  --foreground: #303030;
 
   --tooltip-bg: #171717;
   --tooltip-hover: #3F3F3F;
 
-   --dropdown-bg: #171717;
+  --dropdown-bg: #171717;
 
   --primary: #ffa41f;          
   --secondary: #f5f5f6;

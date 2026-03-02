@@ -16,6 +16,7 @@ import VerifyEmail from "./Pages/Auth/VerifyEmail";
 import AllUsers from "./Admin/Pages/Members/AllMembers";
 import AllMembers from "./Admin/Pages/Members/AllMembers";
 import MembersDetails from "./Admin/Pages/Members/MembersDetails";
+import EditMember from "./Admin/Pages/Members/EditMember";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -33,6 +34,7 @@ const App = () => {
 
         { path: "/admin/all-members", element: <AllMembers /> },
         { path: "/admin/all-members/:userId", element: <MembersDetails /> },
+        { path: "/admin/all-members/edit/:userId", element: <EditMember /> },
 
         { path: "/admin/components", element: <Components /> },
         { path: "/admin/admin-theme-change", element: <AdminThemeChange /> },
