@@ -4,7 +4,7 @@ import 'dotenv/config'
 const requiredEnv = [
   'NODE_ENV',
   'PORT',
-  'MONGODB_URI',
+  'MONGO_URI',
   'JWT_SECRET',
   'JWT_EXPIRES_IN',
   'EMAIL_SERVICE',
