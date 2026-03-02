@@ -15,6 +15,7 @@ import Tooltip from "../../../Components/Tooltip";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
 import users from "../../../Api/users";
+import Modal, { Popup } from "../../../Components/PopUp";
 
 const AllMembers = () => {
   const [selectedRole, setSelectedRole] = useState("All Roles");
@@ -107,6 +108,21 @@ const AllMembers = () => {
     name: "Search by name...",
     email: "Search by email...",
   }[searchBy];
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+
+  const handleDeleteClick = (user) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    console.log("Deleting user:", userToDelete?.id);
+    // এখানে আসল delete logic যাবে (API call + state update)
+    setShowDeleteModal(false);
+    setUserToDelete(null);
+  };
 
   return (
     <div className="min-h-auto bg-(--card) rounded-md border border-(--border)">
@@ -219,7 +235,7 @@ const AllMembers = () => {
                         <BanStatusBadge status={user.status} />
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-[13px] opacity-70">
-                       {formatJoinedDate(user.createdAt)}
+                        {formatJoinedDate(user.createdAt)}
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-right">
                         <div className="flex items-center gap-2 justify-end">
@@ -227,7 +243,9 @@ const AllMembers = () => {
                             <IconButton
                               icon={<MdOutlineEdit />}
                               className="border-(--theme)/25 text-(--muted-text)"
-                              onClick={()=> navigate(`/admin/all-members/edit/${user.id}`)}
+                              onClick={() =>
+                                navigate(`/admin/all-members/edit/${user.id}`)
+                              }
                             />
                           </Tooltip>
 
@@ -240,10 +258,12 @@ const AllMembers = () => {
                               }
                             />
                           </Tooltip>
+
                           <Tooltip content="Delete" position="top">
                             <IconButton
                               icon={<MdDeleteOutline />}
-                              className="border-(--theme)/25 text-red-400"
+                              className="bg-red-400 text-white border border-(--border)"
+                              onClick={() => handleDeleteClick(user)} // ← এখানে খুলবে
                             />
                           </Tooltip>
                         </div>
@@ -270,6 +290,42 @@ const AllMembers = () => {
             </table>
           </div>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        <Modal
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          title="Confirm Delete"
+          width="420px"
+          maxWidth="90%"
+          className="border border-(--border)"
+        >
+          <div className="p-6 space-y-2">
+            <p className="">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold">
+                {userToDelete?.username || "this user"}?
+              </span>
+            </p>
+
+            <p className="text-sm text-red-400">
+              This action cannot be undone.
+            </p>
+
+            <div className="flex justify-end gap-4 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </Button>
+
+              <Button variant="outline" className="bg-red-400 text-white" onClick={handleConfirmDelete}>
+                Yes, Delete
+              </Button>
+            </div>
+          </div>
+        </Modal>
 
         {/* Pagination + Per Page Selector */}
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
