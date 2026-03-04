@@ -10,6 +10,7 @@ const requiredEnv = [
   'EMAIL_SERVICE',
   'EMAIL_USER',
   'EMAIL_PASS',
+  'FRONTEND_URL',
   'APP_URL',
   'RATE_LIMIT_WINDOW_MS',
   'RATE_LIMIT_MAX'
