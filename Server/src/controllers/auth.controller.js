@@ -53,7 +53,7 @@ export const getRegisterController = asyncHandler(async (req, res) => {
 
   try {
     // 6. Send verification email
-    const verifyUrl = `${config.FRONTEND_URL}/verify-email?token=${emailVerificationToken}`;
+    const verifyUrl = `${config.FRONTEND_URL}/verify-email?token=${emailVerificationToken}&id=${user._id}`;
     const verificationTemplate = verificationEmail({
       name: user.username,
       verifyUrl,
@@ -75,4 +75,60 @@ export const getRegisterController = asyncHandler(async (req, res) => {
   });
 });
 
+// Email Verification Controller
+export const getEmailVerificationController = asyncHandler(async (req, res) => {
+  const { token, id } = req.query;
+
+  // 1. Early input validation
+  if (!token || !id) {
+    throw new AppError('Missing verification parameters', 400);
+  }
+
+  // 2. Find user + select only needed fields (performance)
+  const user = await User.findById(id, {
+    email: 1,
+    username: 1,
+    isVerified: 1,
+    emailVerificationToken: 1,
+    emailVerificationTokenExpires: 1,
+  });
+
+  if (!user) {
+    throw new AppError('Invalid verification link – user not found', 404);
+  }
+
+  // 3. Already verified → early return (common case)
+  if (user.isVerified) {
+    return res.status(200).json({
+      success: true,
+      message: 'Email was already verified.',
+      alreadyVerified: true,
+    });
+  }
+
+  // 4. Token validation in one readable condition
+  const tokenIsInvalid = user.emailVerificationToken !== token || !user.emailVerificationTokenExpires || user.emailVerificationTokenExpires < Date.now();
+  if (tokenIsInvalid) {
+    throw new AppError('Verification link is invalid or has expired', 400);
+  }
+
+  // 5. Update in one atomic operation
+  user.isVerified = true;
+  user.emailVerificationToken = undefined;
+  user.emailVerificationTokenExpires = undefined;
+
+  // 6. Save + send welcome email in parallel (faster response)
+  await Promise.all([
+    user.save(),
+    sendEmail(user.email, welcomeEmail({ name: user.username })),
+  ]).catch((err) => {
+    console.error('Welcome email failed after verification:', err);
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: 'Email verified successfully! You can now log in.',
+    email: user.email,
+  });
+});
 
