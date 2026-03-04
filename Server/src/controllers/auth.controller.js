@@ -132,3 +132,50 @@ export const getEmailVerificationController = asyncHandler(async (req, res) => {
   });
 });
 
+// Resend verification email controller
+export const getResendVerificationEmailController = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    throw new AppError('Email is required', 400);
+  }
+  const user = await User.findOne({ email }, {
+    email: 1,
+    username: 1,
+    isVerified: 1,
+    emailVerificationToken: 1,
+    emailVerificationTokenExpires: 1,
+  });
+
+  if (!user) {
+    throw new AppError('No account found with that email', 404);
+  }
+
+  if (user.isVerified) {
+    throw new AppError('This email is already verified', 400);
+  }
+
+  // Generate new token
+  const emailVerificationToken = crypto.randomBytes(32).toString("hex");
+  const emailVerificationTokenExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+  user.emailVerificationToken = emailVerificationToken;
+  user.emailVerificationTokenExpires = emailVerificationTokenExpires;
+  
+  await user.save();
+
+    // Send verification email
+  const verifyUrl = `${config.FRONTEND_URL}/verify-email?token=${emailVerificationToken}&id=${user._id}`;
+  const verificationTemplate = verificationEmail({
+    name: user.username,
+    verifyUrl,
+  });
+
+  await sendEmail(user.email, verificationTemplate);
+
+  return res.status(200).json({
+    success: true,
+    message: 'Verification email resent! Please check your inbox.',
+  });
+
+});
