@@ -14,6 +14,7 @@ export const config = {
   EMAIL_PASS: process.env.EMAIL_PASS,
 
   APP_URL: process.env.APP_URL,
+  FRONTEND_URL: process.env.FRONTEND_URL,
 
   RATE_LIMIT_WINDOW_MS: Number(process.env.RATE_LIMIT_WINDOW_MS), 
   RATE_LIMIT_MAX: Number(process.env.RATE_LIMIT_MAX),
