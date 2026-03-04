@@ -57,7 +57,7 @@ const userSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["active", "inactive", "suspended", "deleted"],
+      enum: ["active", "inactive", "suspended", "banned"],
       default: "active",
     },
 
@@ -100,7 +100,6 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-
     agreedToTerms: {
       type: Boolean,
       required: true,
