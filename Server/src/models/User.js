@@ -1,35 +1,38 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
-import validator from 'validator';
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import validator from "validator";
 
 const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      required: [true, 'Username is required'],
+      required: [true, "Username is required"],
       unique: true,
       trim: true,
-      minlength: [3, 'Username must be at least 3 characters'],
-      maxlength: [30, 'Username cannot exceed 30 characters'],
-      match: [/^[a-zA-Z0-9_.-]+$/, 'Username can only contain letters, numbers, underscores, dots and hyphens'],
+      minlength: [3, "Username must be at least 3 characters"],
+      maxlength: [30, "Username cannot exceed 30 characters"],
+      match: [
+        /^[a-zA-Z0-9_.-]+$/,
+        "Username can only contain letters, numbers, underscores, dots and hyphens",
+      ],
       lowercase: true,
-      index: true, 
+      index: true,
     },
 
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
-      validate: [validator.isEmail, 'Please provide a valid email'],
+      validate: [validator.isEmail, "Please provide a valid email"],
       index: true,
     },
 
     password: {
       type: String,
-      required: [true, 'Password is required'],
-      minlength: [8, 'Password must be at least 8 characters'],
+      required: [true, "Password is required"],
+      minlength: [8, "Password must be at least 8 characters"],
       select: false, // never return password in queries by default
     },
 
@@ -40,28 +43,30 @@ const userSchema = new mongoose.Schema(
     // ─── Profile Visuals ───────────────────────────────
     avatar: {
       type: String,
-      default: 'https://example.com/default-avatar.png',
+      default: "https://example.com/default-avatar.png",
     },
     banner: String,
 
     // ─── Account Status & Permissions ──────────────────
     role: {
       type: String,
-      enum: ['user', 'moderator', 'admin', 'banned'],
-      default: 'user',
+      enum: ["user", "moderator", "admin", "banned"],
+      default: "user",
       index: true,
     },
 
     status: {
       type: String,
-      enum: ['active', 'inactive', 'suspended', 'deleted'],
-      default: 'active',
+      enum: ["active", "inactive", "suspended", "deleted"],
+      default: "active",
     },
 
     isVerified: {
       type: Boolean,
       default: false,
     },
+    emailVerificationToken: { type: String, default: null },
+    emailVerificationTokenExpires: { type: Date, default: null },
 
     // ─── Authentication & Sessions ─────────────────────
     isLoggedIn: {
@@ -90,11 +95,12 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
-    // ─── User Preferences 
+    // ─── User Preferences
     receiveUpdates: {
       type: Boolean,
       default: true,
     },
+
     agreedToTerms: {
       type: Boolean,
       required: true,
@@ -110,25 +116,24 @@ const userSchema = new mongoose.Schema(
       {
         provider: {
           type: String,
-          enum: ['google', 'github', 'facebook', 'discord', 'twitter'],
+          enum: ["google", "github", "facebook", "discord", "twitter"],
           required: true,
         },
         providerId: { type: String, required: true },
         email: String,
         displayName: String,
         avatar: String,
-        accessToken: String, // only if you need to call APIs later
+        accessToken: String, 
         refreshToken: String,
         connectedAt: { type: Date, default: Date.now },
       },
     ],
 
-
     profile: {
-      type: mongoose.Schema.Types.profile, 
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Profile",
     },
 
-    
     balance: {
       type: Number,
       default: 0,
@@ -140,7 +145,6 @@ const userSchema = new mongoose.Schema(
       min: 0,
     },
 
-   
     stats: {
       totalPosts: { type: Number, default: 0, min: 0 },
       totalReactions: { type: Number, default: 0, min: 0 },
@@ -154,57 +158,23 @@ const userSchema = new mongoose.Schema(
         default: 0,
         min: 0,
         max: 5,
-        set: (v) => Math.round(v * 10) / 10, 
+        set: (v) => Math.round(v * 10) / 10,
       },
     },
 
-   
     createdAt: {
       type: Date,
       default: Date.now,
       immutable: true,
     },
     updatedAt: Date,
-
-    deletedAt: Date, 
+    deletedAt: Date,
   },
   {
     timestamps: true, // automatically adds & updates createdAt + updatedAt
     toJSON: { virtuals: true, versionKey: false },
     toObject: { virtuals: true },
-  }
+  },
 );
 
-// ─── Password hashing middleware ───────────────────────
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-
-  try {
-    const salt = await bcrypt.genSalt(12);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
-  }
-});
-
-// ─── Compare password method ───────────────────────────
-userSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
-
-// ─── Useful query helpers (optional) ───────────────────
-userSchema.query.byEmail = function (email) {
-  return this.findOne({ email: email.toLowerCase() });
-};
-
-userSchema.query.active = function () {
-  return this.find({ status: 'active', isVerified: true });
-};
-
-// Virtual example (if you want fullName later)
-userSchema.virtual('displayName').get(function () {
-  return this.profile?.displayName || this.username;
-});
-
-export const User = mongoose.model('User', userSchema);
+export const User = mongoose.model("User", userSchema);
