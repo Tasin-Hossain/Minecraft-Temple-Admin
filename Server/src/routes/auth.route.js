@@ -1,5 +1,5 @@
 import express from "express";
-import { getEmailVerificationController, getLoginController, getLogoutController, getRegisterController, getResendVerificationEmailController, getTwoFactorConfirmController, getTwoFactorDisableController, getTwoFactorEnableController, getTwoFactorVerifyController } from "../controllers/auth.controller.js";
+import { getCheckRefreshTokenController, getEmailVerificationController, getLoginController, getLogoutController, getRefreshTokenController, getRegisterController, getResendVerificationEmailController, getTwoFactorConfirmController, getTwoFactorDisableController, getTwoFactorEnableController, getTwoFactorVerifyController } from "../controllers/auth.controller.js";
 import { protect } from "../middlewares/authMiddleware.js";
 
 
@@ -16,5 +16,9 @@ router.post("/2fa/verify",getTwoFactorVerifyController);
 router.post("/2fa/disable", protect, getTwoFactorDisableController);
 
 router.post("/logout", protect, getLogoutController);
+
+router.post("/refresh", getRefreshTokenController);
+router.get("/chech-refresh-token", getCheckRefreshTokenController);
+
 
 export default router;

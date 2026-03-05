@@ -502,3 +502,89 @@ export const getLogoutController = asyncHandler(async (req, res) => {
     success: true,
   });
 });
+
+// Token Refresh Controller
+export const getRefreshTokenController = asyncHandler(async (req, res) => {
+  const refreshToken = req.cookies?.refreshToken || req.body.refreshToken; 
+
+  if (!refreshToken) {
+    throw new AppError("Refresh token missing", 401);
+  }
+
+  let payload;
+
+  try {
+    payload = jwt.verify(refreshToken, config.JWT_REFRESH_SECRET);
+  } catch (err) {
+    throw new AppError("Invalid refresh token", 401);
+  }
+
+  const user = await User.findById(payload.id);
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+  const tokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+
+  const storedToken = user.refreshTokens.find((t) => t.token === tokenHash);
+
+  if (!storedToken) {
+    throw new AppError("Refresh token not recognized", 401);
+  }
+  if (storedToken.expiresAt < new Date()) {
+    user.refreshTokens = user.refreshTokens.filter((t) => t.token !== tokenHash);
+    await user.save();
+    throw new AppError("Refresh token expired", 401);
+  }
+
+  // Generate new tokens
+  const newAccessToken = generateAccessToken(user._id);
+  const newRefreshToken = generateRefreshToken(user._id);
+  const newTokenHash = crypto.createHash("sha256").update(newRefreshToken).digest("hex");
+
+  // Replace old refresh token with new one
+  user.refreshTokens = user.refreshTokens.filter((t) => t.token !== tokenHash);
+  user.refreshTokens.push({
+    token: newTokenHash,
+    userAgent: req.headers["user-agent"],
+    ip: req.ip,
+    lastUsed: new Date(),
+    expiresAt: new Date(Date.now() + ms(config.JWT_REFRESH_SECRET_EXPIRES_IN)),
+  });
+  await user.save();
+
+  res.cookie("refreshToken", newRefreshToken, {
+    httpOnly: true,
+    secure: config.NODE_ENV === "production",
+    sameSite: "Strict",
+    maxAge: ms(config.JWT_REFRESH_SECRET_EXPIRES_IN),
+  });
+
+  return res.status(200).json({
+    message: "Token refreshed successfully",
+    success: true,
+    accessToken: newAccessToken,
+  });
+
+});
+
+// RefrshToken checker Controller (for security monitoring)
+export const getCheckRefreshTokenController = asyncHandler(async (req, res) => {
+  const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+
+  if (!refreshToken) {
+    return res.status(200).json({
+      valid: false,
+      message: "No refresh token provided",
+    });
+  }
+  try {
+    jwt.verify(refreshToken, config.JWT_REFRESH_SECRET);
+    throw new AppError("Token is valid ", 401);
+  } catch (err) {
+    return res.status(200).json({
+      valid: false,
+      message: "Token is not valid",
+    });
+  }
+});
