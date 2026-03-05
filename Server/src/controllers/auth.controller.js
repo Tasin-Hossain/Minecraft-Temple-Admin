@@ -7,12 +7,15 @@ import { config } from "../config/env.js";
 import { verificationEmail } from "../templates/verificationEmail.js";
 import { welcomeEmail } from "../templates/welcomeEmail.js";
 import { sendEmail } from "../services/email.service.js";
+import speakeasy from "speakeasy";
+import jwt from "jsonwebtoken";
 import {
   generateAccessToken,
   generateRefreshToken,
   generateTempToken,
 } from "../utils/tokenGenerator.js";
 import ms from "ms";
+import qrcode from "qrcode";
 
 // Register Controller
 export const getRegisterController = asyncHandler(async (req, res) => {
@@ -206,7 +209,7 @@ export const getLoginController = asyncHandler(async (req, res) => {
   // Find user by email or username
   const user = await User.findOne({
     $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
-  }).select('+password');
+  }).select("+password");
 
   if (!user) {
     throw new AppError("User not Found", 404);
@@ -226,6 +229,7 @@ export const getLoginController = asyncHandler(async (req, res) => {
   // If 2FA enabled,
   if (user.twoFactor?.enabled) {
     const tempToken = generateTempToken(user._id);
+    console.log("2FA required, temp token issued:", tempToken);
     throw new AppError("Two-factor authentication required", 401, {
       tempToken,
     });
@@ -233,7 +237,7 @@ export const getLoginController = asyncHandler(async (req, res) => {
 
   const accessToken = generateAccessToken(user._id);
   let refreshToken = generateRefreshToken(user._id);
-  
+
   if (stayLoggedIn) {
     user.refreshTokens.push({
       token: refreshToken,
@@ -254,7 +258,6 @@ export const getLoginController = asyncHandler(async (req, res) => {
     });
 
     user.stayLoggedIn = true;
-
   } else {
     refreshToken = generateRefreshToken(user._id, "1d");
 
@@ -265,7 +268,7 @@ export const getLoginController = asyncHandler(async (req, res) => {
       lastUsed: new Date(),
       expiresAt: new Date(Date.now() + ms("1d")),
     });
-    
+
     await user.save();
 
     res.cookie("refreshToken", refreshToken, {
@@ -278,11 +281,224 @@ export const getLoginController = asyncHandler(async (req, res) => {
     user.stayLoggedIn = false;
   }
 
+  user.isLoggedIn = true;
+  user.lastLogin = new Date();
+
+  await user.save();
   return res.status(200).json({
     message: "Login successful",
     success: true,
     accessToken,
     stayLoggedIn: user.stayLoggedIn,
     user,
+  });
+});
+
+// 2FA Enabled
+export const getTwoFactorEnableController = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).select("+twoFactor.secret");
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  if (user.twoFactor?.enabled) {
+    throw new AppError("Two-factor authentication is already enabled", 400);
+  }
+
+  const secret = speakeasy.generateSecret({
+    name: `Minecraft Temple (${user.email})`,
+  });
+
+  const QRCode = await qrcode.toDataURL(secret.otpauth_url);
+
+  user.twoFactor.secret = secret.base32;
+
+  await user.save();
+
+  return res.status(200).json({
+    message: "Two-factor authentication enabled",
+    success: true,
+    QRCode,
+    secret: secret.base32, // In production, you might not want to send the secret back to the client
+  });
+
+});
+
+// 2Fa Connfirmation Controller
+export const getTwoFactorConfirmController = asyncHandler(async (req, res) => {
+  const {code} = req.body;
+
+  const user = await User.findById(req.user._id).select("+twoFactor.secret");
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  if(user.twoFactor?.enabled) {
+    throw new AppError("Two-factor authentication is enabled", 400);
+  }
+  
+  const ok = speakeasy.totp.verify({
+    secret: user.twoFactor.secret,
+    encoding: "base32",
+    token: code,
+    window: 1, // allow 30s clock skew
+  });
+
+  if (!ok) {
+    throw new AppError("Invalid two-factor code", 401);
+  }
+
+  user.twoFactor.enabled = true;
+  await user.save();
+    return res.status(200).json({
+    message: "Two-factor authentication enabled successfully",
+    success: true,
+  });
+});
+
+// 2FA Verify Controller
+export const getTwoFactorVerifyController = asyncHandler(async (req, res) => {
+  const tempToken = req.query.tempToken; // query param
+  const { code } = req.body;
+
+  if (!tempToken || !code) {
+    throw new AppError("Temp token and 2FA code are required", 400);
+  }
+
+  let payload;
+
+  try {
+    payload = jwt.verify(tempToken, config.JWT_TEMP_SECRET);
+  } catch (err) {
+    throw new AppError("Invalid temp token", 401);
+  }
+  const user = await User.findById(payload.id).select("+twoFactor.secret");
+ 
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  if (!user.twoFactor?.secret) {
+    throw new AppError(
+      "Two-factor authentication not set up for this account",
+      400,
+    );
+  }
+
+  // verify the TOTP code using the user's secret
+  const ok = speakeasy.totp.verify({
+    secret: user.twoFactor.secret,
+    encoding: "base32",
+    token: code,
+    window: 1, // allow 30s clock skew
+  });
+
+  if (!ok) {
+    throw new AppError("Invalid two-factor code", 401);
+  }
+
+  // 2FA code is valid → issue regular tokens
+  const accessToken = generateAccessToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
+
+  user.refreshTokens.push({
+    token: refreshToken,
+    userAgent: req.headers["user-agent"],
+    ip: req.ip,
+    lastUsed: new Date(),
+    expiresAt: new Date(Date.now() + ms(config.JWT_REFRESH_SECRET_EXPIRES_IN)),
+  });
+
+  await user.save();
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: config.NODE_ENV === "production",
+    sameSite: "Strict",
+    maxAge: ms(config.JWT_REFRESH_SECRET_EXPIRES_IN),
+  });
+
+  return res.status(200).json({
+    message: "Two-factor authentication successful",
+    success: true,
+    accessToken,
+    user,
+  });
+});
+
+// 2FA Disable Controller
+export const getTwoFactorDisableController = asyncHandler(async (req, res) => {
+  const { code ,password } = req.body;
+
+  if (!code || !password) {
+    throw new AppError("2FA code and password are required", 400);
+  }
+
+  const user = await User.findById(req.user._id).select("+twoFactor.secret +password");
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  if (!user.twoFactor?.enabled) {
+    throw new AppError("Two-factor authentication is not enabled", 400);
+  }
+
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) {
+    throw new AppError("Invalid password", 401);
+  }
+
+  const ok = speakeasy.totp.verify({
+    secret: user.twoFactor.secret,
+    encoding: "base32",
+    token: code,
+    window: 1, // allow 30s clock skew
+  });
+
+  if (!ok) {
+    throw new AppError("Invalid two-factor code", 401);
+  }
+
+  user.twoFactor.enabled = false;
+  user.twoFactor.secret = undefined;
+  await user.save();
+  return res.status(200).json({
+    message: "Two-factor authentication disabled successfully",
+    success: true,
+  });
+
+});
+
+// Logout Controller
+export const getLogoutController = asyncHandler(async (req, res) => {
+  const refreshToken = req.cookies?.refreshToken;
+
+  if (refreshToken) {
+    const tokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+
+    const user = await User.findOne({ "refreshTokens.token": tokenHash });
+    if (user) {
+      user.refreshTokens = user.refreshTokens.filter(
+        (t) => t.token !== tokenHash,
+      );
+      user.stayLoggedIn = false;
+      user.isLoggedIn = false;
+      await user.save();
+    }
+  }
+  
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: config.NODE_ENV === "production",
+    sameSite: "Strict",
+    path: "/",
+  });
+
+  return res.status(200).json({
+    message: "Logout successful",
+    success: true,
   });
 });
