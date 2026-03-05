@@ -2,9 +2,17 @@ import express from "express";
 import errorHandler from "./middlewares/errorHandler.js";
 import authRouter from "./routes/auth.route.js";
 import AppError from "./utils/AppError.js";
-
+import { config } from "./config/env.js";
 
 const app = express();
+
+// Primary CORS
+app.use(
+  cors({
+    origin: config.FRONTEND_URL,
+    credentials: true,
+  })
+);
 
 app.use(express.json());       
 app.use(express.urlencoded({ extended: true }));
