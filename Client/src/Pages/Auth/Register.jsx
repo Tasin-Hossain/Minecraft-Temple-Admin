@@ -17,7 +17,7 @@ import { useAuthActions } from "../../Hooks/useAuthActions";
 const Register = () => {
   const [isLoading, setisLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // Show password
-  const [registerCountdown, setRegisterCountdown] = useState(8); // Cooldown for Registerbutton
+  const [registerCountdown, setRegisterCountdown] = useState(10); // Cooldown for Registerbutton
   const [canClickRegister, setCanClickRegister] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
@@ -34,8 +34,8 @@ const Register = () => {
     e.preventDefault();
 
     const data = await REGISTER(formData);
-    navigate("/verify");
-    console.log(data);
+    navigate("/verify", { state: { email: formData.email } });
+
   };
 
   const handelchange = (e) => {
@@ -49,7 +49,7 @@ const Register = () => {
   useEffect(() => {
     if (open) {
       setCanClickRegister(false);
-      setRegisterCountdown(8);
+      setRegisterCountdown(10);
 
       const timer = setInterval(() => {
         setRegisterCountdown((prev) => {
@@ -102,7 +102,6 @@ const Register = () => {
                 value={formData.username}
                 onChange={handelchange}
               />
-             
             </div>
 
             {/* Email Field */}
