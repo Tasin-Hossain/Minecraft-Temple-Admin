@@ -22,8 +22,14 @@ export const getRegisterController = asyncHandler(async (req, res) => {
   const { username, email, password, agreedToTerms } = req.body;
 
   // 1. Required fields validation
-  if (!username || !email || !password) {
-    throw new AppError("Username, email and password are required", 400);
+  if (!username ) {
+    throw new AppError("Username are required", 400);
+  }
+  if (!email) {
+    throw new AppError("Email is required", 400);
+  }
+  if (!password) {
+    throw new AppError("Password is required", 400);
   }
 
   if (!agreedToTerms) {
