@@ -1,10 +1,49 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Logo from "../../Assets/logo.png";
-import { AiOutlineMail, AiOutlineLoading3Quarters } from "react-icons/ai";
+import { AiOutlineMail } from "react-icons/ai";
 import Button from "../../Components/ui/Button";
+import { useLocation } from "react-router-dom";
+import { useAuthActions } from "../../Hooks/useAuthActions";
 
 const Verify = () => {
-  const email = "miniofficial51@gmail.com";
+  const location = useLocation();
+  const email = location.state?.email || "Your email";
+
+  const [resending, setResending] = useState(false);
+  const [cooldown, setCooldown] = useState(10);
+
+  const { RESEND_VERIFICATION, error } = useAuthActions();
+
+  const handleResend = async () => {
+    if (!email) return toast.error("No email available to resend.");
+
+    // already running হলে prevent multiple click
+    if (resending || cooldown > 0) return;
+
+    setResending(true);
+
+    const data = await RESEND_VERIFICATION(email);
+
+    setCooldown(60);
+    setResending(false);
+  };
+
+  // Countdown timer logic
+  useEffect(() => {
+    if (cooldown <= 0) return;
+
+    const timer = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   return (
     <div className="min-h-screen  flex items-center justify-center px-4 transition-colors duration-300">
@@ -61,7 +100,22 @@ const Verify = () => {
         <div className="flex flex-col items-center text-center space-y-4 pt-2">
           <p className="text-(--muted-text)">Didn’t receive the email?</p>
 
-          <Button type="button">Resend Verification Email</Button>
+          <Button
+            type="button"
+            onClick={handleResend}
+            disabled={resending || cooldown > 0}
+            className={`w-full ${
+              resending || cooldown > 0 ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
+            {resending
+              ? "Resending..."
+              : cooldown > 0
+                ? `Resend in ${cooldown}s`
+                : "Resend Verification Email"}
+          </Button>
+
+          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
           <p className="text-xs text-(--muted-text) pt-2">
             Still having trouble? Contact support
