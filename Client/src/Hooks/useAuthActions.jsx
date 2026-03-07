@@ -68,7 +68,7 @@ export const useAuthActions = () => {
       setActionError(actionKey, errorMsg);
       // dispatch(setError(errorMsg)); // global error set করতে চাইলে রাখো
 
-      toast.error(errorMsg)
+      toast.error(errorMsg);
       throw error;
     } finally {
       setActionLoading(actionKey, false);
