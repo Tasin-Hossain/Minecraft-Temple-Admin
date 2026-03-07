@@ -8,26 +8,43 @@ import Button, {
   DiscordButton,
   GoogleButton,
 } from "../../Components/ui/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaDiscord } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import Loader from "../../Components/Loader";
+import { useAuthActions } from "../../Hooks/useAuthActions";
 
 const Register = () => {
-  // Loader
-  const [loading, setLoading] = useState(false);
-
-  // Input Fields
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-
-  // Show password
-  const [showPassword, setShowPassword] = useState(false);
-
-  // Cooldown for Registerbutton
-  const [registerCountdown, setRegisterCountdown] = useState(8);
+  const [isLoading, setisLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Show password
+  const [registerCountdown, setRegisterCountdown] = useState(8); // Cooldown for Registerbutton
   const [canClickRegister, setCanClickRegister] = useState(false);
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    agreedToTerms: false,
+  });
+
+  const { REGISTER, isRegisterLoading, error } = useAuthActions();
+
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const data = await REGISTER(formData);
+    navigate("/verify");
+    console.log(data);
+  };
+
+  const handelchange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   useEffect(() => {
     if (open) {
@@ -48,12 +65,6 @@ const Register = () => {
       return () => clearInterval(timer);
     }
   }, [open]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // এখানে তোমার login logic যাবে (API call)
-    console.log("Register attempt:", { username, email, password });
-  };
 
   return (
     <div className="min-h-screen  flex items-center justify-center px-4 transition-colors duration-300">
@@ -88,9 +99,10 @@ const Register = () => {
                 placeholder="Enter your username"
                 name="username"
                 type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={formData.username}
+                onChange={handelchange}
               />
+             
             </div>
 
             {/* Email Field */}
@@ -102,8 +114,8 @@ const Register = () => {
                 placeholder="name@example.com"
                 name="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handelchange}
               />
             </div>
 
@@ -112,12 +124,12 @@ const Register = () => {
               <div className="relative">
                 <Input
                   label="Password"
-                  name="passoword"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   id="password"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={handelchange}
                   placeholder="••••••••"
                 />
                 <button
@@ -141,13 +153,23 @@ const Register = () => {
             </div>
           </div>
 
+          {/* I agree Trams & Condtions */}
           <div className="flex items-center justify-between px-1">
-            <Checkbox label="I agree Trams & Condtions" />
+            <Checkbox
+              label="I agree Trams & Condtions"
+              checked={formData.agreedToTerms}
+              onChange={() =>
+                setFormData({
+                  ...formData,
+                  agreedToTerms: !formData.agreedToTerms,
+                })
+              }
+            />
           </div>
 
           {/* Submit Button */}
           <div>
-            {loading ? (
+            {isRegisterLoading ? (
               <Button
                 type="submit"
                 className="w-full py-3 flex justify-center uppercase"
@@ -157,16 +179,17 @@ const Register = () => {
             ) : (
               <Button
                 type="submit"
+                onSubmit={handleSubmit}
                 className={`w-full py-3 flex justify-center uppercase ${
                   canClickRegister
-                  ? "opacity-100 cursor-pointer"
-                  : "opacity-50 cursor-not-allowed!"
+                    ? "opacity-100 cursor-pointer"
+                    : "opacity-50 cursor-not-allowed!"
                 }`}
                 disabled={!canClickRegister}
               >
                 {canClickRegister
-                ? "Sign Up"
-                : `Sign Up (${registerCountdown}s)`}
+                  ? "Sign Up"
+                  : `Sign Up (${registerCountdown}s)`}
               </Button>
             )}
           </div>
@@ -183,7 +206,7 @@ const Register = () => {
         </form>
 
         <div className="flex items-center justify-between">
-          {loading ? (
+          {isLoading ? (
             <DiscordButton
               children="Login with Discord"
               icon={<Loader size={20} />}
@@ -191,7 +214,7 @@ const Register = () => {
           ) : (
             <DiscordButton children="Login with Discord" icon={<FaDiscord />} />
           )}
-          {loading ? (
+          {isLoading ? (
             <GoogleButton
               children="Continue with Google"
               icon={<Loader size={20} />}
