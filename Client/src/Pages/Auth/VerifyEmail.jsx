@@ -2,9 +2,42 @@ import React, { useState, useEffect } from "react";
 import Logo from "../../Assets/logo.png";
 import Loader from "../../Components/Loader";
 import Button from "../../Components/ui/Button";
-import {Link} from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useAuthActions } from "../../Hooks/useAuthActions";
 const VerifyEmail = () => {
   const [status, setStatus] = useState("loading");
+  const [errorMsg, setErrorMsg] = useState();
+  const [search] = useSearchParams();
+
+  const navigate = useNavigate();
+
+  const { VERIFY_EMAIL } = useAuthActions();
+
+  useEffect(() => {
+    const token = search.get("token");
+    const id = search.get("id");
+
+    if (!token || !id) {
+      setStatus("error");
+      setErrorMsg("Invalid verification link. Missing parameters.");
+      return;
+    }
+
+    const verify = async () => {
+      try {
+        const res = await VERIFY_EMAIL(token, id);
+        setStatus("success");
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000); //2s
+      } catch (error) {
+
+        setStatus("error");
+      }
+    };
+
+    verify();
+  }, []);
 
   return (
     <div className="min-h-screen  flex flex-col items-center justify-center px-4 transition-colors duration-300">
@@ -35,9 +68,7 @@ const VerifyEmail = () => {
 
           {status === "success" && (
             <>
-              <h1 className="text-[20px]">
-                Email Verified!
-              </h1>
+              <h1 className="text-[20px]">Email Verified!</h1>
               <div className="w-20 h-20 rounded-full bg-green-200 dark:bg-green-900/30 flex items-center justify-center mx-auto">
                 <svg
                   className="w-10 h-10 text-green-600"
@@ -58,19 +89,15 @@ const VerifyEmail = () => {
                 Thank you! Your email has been successfully verified.
               </p>
 
-              <Link to={'/admin'}>
-                <Button className="mt-6 ">
-                Go to Dashboard
-              </Button>
+              <Link to={"/admin"}>
+                <Button className="mt-6 ">Go to Dashboard</Button>
               </Link>
             </>
           )}
 
           {status === "error" && (
             <>
-              <h1 className="text-[20px]">
-                Verification Failed
-              </h1>
+              <h1 className="text-[20px]">Verification Failed</h1>
               <div className="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto">
                 <svg
                   className="w-10 h-10 text-red-600 dark:text-red-400"
@@ -87,14 +114,9 @@ const VerifyEmail = () => {
                 </svg>
               </div>
 
+              <p className=" max-w-xs">The link may be expired or invalid.</p>
 
-              <p className=" max-w-xs">
-                The link may be expired or invalid.
-              </p>
-
-              <Button className="mt-6">
-                Request New Link
-              </Button>
+              <Button className="mt-6">Request New Link</Button>
             </>
           )}
         </div>
