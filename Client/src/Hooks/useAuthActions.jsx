@@ -86,7 +86,7 @@ export const useAuthActions = () => {
   };
 
   // Verify Email
-  const verifyEmail = async (token, id) => {
+  const VERIFY_EMAIL = async (token, id) => {
     return handleApiCall(
       "verifyEmail",
       () => API.VERIFY_EMAIL_API(token, id),
@@ -96,17 +96,17 @@ export const useAuthActions = () => {
   };
 
   // Resend Verification
-  const resendVerification = async (email) => {
+  const RESEND_VERIFICATION = async (email) => {
     return handleApiCall(
       "resendVerification",
       API.RESEND_VERIFICATION_EMAIL_API,
       email,
-      "Verification email resent.",
+      `${email} Verification email resent.`,
     );
   };
 
   // Login
-  const login = async (data) => {
+  const LOGIN = async (data) => {
     return handleApiCall(
       "login",
       API.LOGIN_API,
@@ -116,7 +116,7 @@ export const useAuthActions = () => {
   };
 
   // Enable 2FA
-  const enable2FA = async () => {
+  const ENABLE_2FA = async () => {
     return handleApiCall(
       "enable2FA",
       API.ENABLE_2FA_API,
@@ -126,7 +126,7 @@ export const useAuthActions = () => {
   };
 
   // Confirm Enable 2FA
-  const confirmEnable2FA = async (code) => {
+  const CONFIRM_ENABLE_2FA = async (code) => {
     return handleApiCall(
       "confirmEnable2FA",
       API.CONFIRM_ENABLE_2FA_API,
@@ -136,7 +136,7 @@ export const useAuthActions = () => {
   };
 
   // Verify 2FA
-  const verify2FA = async (tempToken, code) => {
+  const VERIFY_2FA = async (tempToken, code) => {
     return handleApiCall(
       "verify2FA",
       () => API.VERIFY_2FA_API(tempToken, code),
@@ -146,7 +146,7 @@ export const useAuthActions = () => {
   };
 
   // Disable 2FA
-  const disable2FA = async (password, code) => {
+  const DISABLE_2FA = async (password, code) => {
     return handleApiCall(
       "disable2FA",
       () => API.DISABLE_2FA_API(password, code),
@@ -156,7 +156,7 @@ export const useAuthActions = () => {
   };
 
   // Refresh Token
-  const refreshToken = async () => {
+  const REFRESH_TOKEN = async () => {
     return handleApiCall(
       "refreshToken",
       API.REFRESH_TOKEN_API,
@@ -165,7 +165,7 @@ export const useAuthActions = () => {
   };
 
   // Logout (logout-এ loading optional, কিন্তু রাখলাম)
-  const logoutUser = async () => {
+  const LOGOUT_USER = async () => {
     setActionLoading("logout", true);
     try {
       await API.LOGOUT_API();
@@ -181,15 +181,15 @@ export const useAuthActions = () => {
 
   return {
     REGISTER,
-    verifyEmail,
-    resendVerification,
-    login,
-    enable2FA,
-    confirmEnable2FA,
-    verify2FA,
-    disable2FA,
-    refreshToken,
-    logoutUser,
+    VERIFY_EMAIL,
+    RESEND_VERIFICATION,
+    LOGIN,
+    ENABLE_2FA,
+    CONFIRM_ENABLE_2FA,
+    VERIFY_2FA,
+    DISABLE_2FA,
+    REFRESH_TOKEN,
+    LOGOUT_USER,
 
 
     isLoading: loadingStates,      
