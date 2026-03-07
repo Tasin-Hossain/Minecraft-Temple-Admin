@@ -3,7 +3,6 @@ import React, { useId } from 'react';
 export const Checkbox = ({
   id: providedId,
   label,
-  defaultChecked = false,
   checked,
   onChange,
   className = '',
@@ -22,7 +21,6 @@ export const Checkbox = ({
         <input
           id={finalId}
           type="checkbox"
-          defaultChecked={defaultChecked}
           checked={checked}
           onChange={onChange}
           className="peer absolute opacity-0 w-0 h-0"
