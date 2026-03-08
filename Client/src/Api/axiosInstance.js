@@ -1,6 +1,7 @@
 import axios from "axios";
 import {store} from "../Redux/store.js";
-import { LOGOUT_API, REFRESH_TOKEN_API } from "./auth.js";
+import { REFRESH_TOKEN_API } from "./auth.js";
+import { logout } from "../Redux/userSlice.js";
 
 
 // Axios Instance
@@ -17,9 +18,9 @@ const removeAccessToken = () => localStorage.removeItem("accessToken");
 const setAccessToken = (token) => localStorage.setItem("accessToken", token);
 
 // Logout Handler
-const handleLogout = () => {
+export const handleLogout = () => {
   removeAccessToken();
-  store.dispatch(LOGOUT_API());
+  store.dispatch(logout());
   window.location.href = "/login";
 };
 

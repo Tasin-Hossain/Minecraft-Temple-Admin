@@ -8,7 +8,7 @@ export const LOGIN_API = (data) =>  API.post("/login", data);
 
 export const ENABLE_2FA_API = () => API.post("/2fa/enable");
 export const CONFIRM_ENABLE_2FA_API = (code) => API.post("/2fa/enable/confirm", {code});
-export const VERIFY_2FA_API = (tempToken, code) => API.post(`/2fa/verify?token=${tempToken}`, {code});
+export const VERIFY_2FA_API = (tempToken, code) =>API.post(`/2fa/verify?tempToken=${tempToken}`, {code,});
 export const DISABLE_2FA_API = (password,code) => API.post("/2fa/disable", {password,code});
 
 export const REFRESH_TOKEN_API = () => API.post("/refresh", {}, {withCredentials: true});
