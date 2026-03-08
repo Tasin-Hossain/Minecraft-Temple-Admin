@@ -6,7 +6,7 @@ import { Link, useLocation } from "react-router-dom";
 import Logo from "../../Assets/logo.png";
 import { SimpleTooltip } from "./Tooltip/SimpleTooltip";
 import { MenuTooltip } from "./Tooltip/MenuTooltip";
-import {  FaRegUser  } from "react-icons/fa";
+import { FaRegUser } from "react-icons/fa";
 import { LuLogOut } from "react-icons/lu";
 import { IoSettingsOutline } from "react-icons/io5";
 import { TbWaveSawTool } from "react-icons/tb";
@@ -25,6 +25,7 @@ import { LuBrain } from "react-icons/lu";
 import { TiShoppingCart } from "react-icons/ti";
 import { PiLightbulbLight } from "react-icons/pi";
 import { GrMultiple } from "react-icons/gr";
+import { handleLogout } from "../../Api/axiosInstance";
 
 const menu = [
   {
@@ -35,11 +36,11 @@ const menu = [
   {
     name: "Members",
     icon: PiUsersThree,
-    path: "/admin/all-members"
+    path: "/admin/all-members",
   },
   {
     name: "Products",
-    icon: BsBoxSeam ,
+    icon: BsBoxSeam,
     children: [
       { name: "All Products", path: "/admin/products" },
       { name: "Add Products", path: "/admin/add-products" },
@@ -48,102 +49,73 @@ const menu = [
   {
     name: "Orders",
     icon: TiShoppingCart,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
+    children: [{ name: "All Orders", path: "/admin/products" }],
   },
   {
     name: "Records",
     icon: MdOutlineLibraryBooks,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
+    children: [{ name: "All Orders", path: "/admin/products" }],
   },
   {
     name: "Withdrawls",
     icon: TbHandClick,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
+    children: [{ name: "All Orders", path: "/admin/products" }],
   },
   {
     name: "Transactions",
-    icon: BiMoneyWithdraw ,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
+    icon: BiMoneyWithdraw,
+    children: [{ name: "All Orders", path: "/admin/products" }],
   },
   {
     name: "Advertisement",
     icon: RiAdvertisementLine,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
+    children: [{ name: "All Orders", path: "/admin/products" }],
   },
   {
     name: "Categories",
     icon: MdOutlineCategory,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
+    children: [{ name: "All Orders", path: "/admin/products" }],
   },
   {
     name: "Tickets",
     icon: LuTicket,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
+    children: [{ name: "All Orders", path: "/admin/products" }],
   },
   {
     name: "Navigations",
     icon: BiMenu,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
+    children: [{ name: "All Orders", path: "/admin/products" }],
   },
   {
     name: "Blogs",
     icon: MdOutlineConnectedTv,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
+    children: [{ name: "All Orders", path: "/admin/products" }],
   },
   {
     name: "Appearance",
     icon: RiBrush3Line,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
+    children: [{ name: "All Orders", path: "/admin/products" }],
   },
   {
     name: "AI Magic",
     icon: LuBrain,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
+    children: [{ name: "All Orders", path: "/admin/products" }],
   },
   {
     name: "Settings",
     icon: IoSettingsOutline,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
+    children: [{ name: "All Orders", path: "/admin/products" }],
   },
   {
     name: "Sections",
     icon: GrMultiple,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
+    children: [{ name: "All Orders", path: "/admin/products" }],
   },
   {
     name: "System",
     icon: PiLightbulbLight,
-    children: [
-      { name: "All Orders", path: "/admin/products" },
-    ],
-  },
-  
+    children: [{ name: "All Orders", path: "/admin/products" }],
+  }
 ];
 
 /* ================= SIDEBAR ================= */
@@ -284,16 +256,16 @@ export default function SideBar({ expanded }) {
 
           <div className="p-2">
             {/* my profile */}
-            <Link to={'/admin/settings'}>
+            <Link to={"/admin/settings"}>
               <button
-              className="w-full px-3 py-2 text-left text-[14px] flex items-center gap-2 rounded-md cursor-pointer hover:bg-(--sidebar-hover) transition-colors"
-              onClick={() => {
-                SetIsProfileOpen(false);
-              }}
-            >
-              <FaRegUser size={17} className="" />
-              My Profile
-            </button>
+                className="w-full px-3 py-2 text-left text-[14px] flex items-center gap-2 rounded-md cursor-pointer hover:bg-(--sidebar-hover) transition-colors"
+                onClick={() => {
+                  SetIsProfileOpen(false);
+                }}
+              >
+                <FaRegUser size={17} className="" />
+                My Profile
+              </button>
             </Link>
 
             {/* Account Setting */}
@@ -316,15 +288,16 @@ export default function SideBar({ expanded }) {
               <TbWaveSawTool size={17} className="" />
               Activity Log
             </button>
-            
+
             {/* log out */}
             <div className="border-t border-(--border)" />
-              <button
-                className="w-full px-3 py-2 text-left text-[14px] flex items-center gap-2 rounded-md cursor-pointer hover:bg-red-100/20 text-red-400 transition-colors"
-                onClick={() => {
-                  SetIsProfileOpen(false);
-                }}
-              >
+            <button
+              className="w-full px-3 py-2 text-left text-[14px] flex items-center gap-2 rounded-md cursor-pointer hover:bg-red-100/20 text-red-400 transition-colors"
+              onClick={() => {
+                handleLogout();
+                SetIsProfileOpen(false);
+              }}
+            >
               <LuLogOut size={17} className="text-red-400" />
               Log Out
             </button>
@@ -406,9 +379,7 @@ const MenuItem = memo(({ item, expanded, pathname, isOpen, toggle }) => {
               const childActive = pathname === child.path;
               return (
                 <div className="flex items-center gap-2 ">
-                  <div
-                    className={`bg-(--theme)  w-1 h-1 rounded-full `}
-                  >
+                  <div className={`bg-(--theme)  w-1 h-1 rounded-full `}>
                     {""}
                   </div>
                   <Link
