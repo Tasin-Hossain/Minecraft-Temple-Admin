@@ -22,7 +22,7 @@ export const getRegisterController = asyncHandler(async (req, res) => {
   const { username, email, password, agreedToTerms } = req.body;
 
   // 1. Required fields validation
-  if (!username ) {
+  if (!username) {
     throw new AppError("Username are required", 400);
   }
   if (!email) {
@@ -236,8 +236,11 @@ export const getLoginController = asyncHandler(async (req, res) => {
   if (user.twoFactor?.enabled) {
     const tempToken = generateTempToken(user._id);
     console.log("2FA required, temp token issued:", tempToken);
-    throw new AppError("Two-factor authentication required", 401, {
+    return res.status(200).json({
+      success: false,
+      need2FA: true,
       tempToken,
+      message: "Two-factor authentication required",
     });
   }
 
@@ -290,13 +293,15 @@ export const getLoginController = asyncHandler(async (req, res) => {
   user.isLoggedIn = true;
   user.lastLogin = new Date();
 
+  // Send safe user data
+  const { password: pwd, ...userData } = user._doc;
+
   await user.save();
   return res.status(200).json({
     message: "Login successful",
     success: true,
     accessToken,
-    stayLoggedIn: user.stayLoggedIn,
-    user,
+    user: userData,
   });
 });
 
@@ -328,12 +333,11 @@ export const getTwoFactorEnableController = asyncHandler(async (req, res) => {
     QRCode,
     secret: secret.base32, // In production, you might not want to send the secret back to the client
   });
-
 });
 
 // 2Fa Connfirmation Controller
 export const getTwoFactorConfirmController = asyncHandler(async (req, res) => {
-  const {code} = req.body;
+  const { code } = req.body;
 
   const user = await User.findById(req.user._id).select("+twoFactor.secret");
 
@@ -341,10 +345,10 @@ export const getTwoFactorConfirmController = asyncHandler(async (req, res) => {
     throw new AppError("User not found", 404);
   }
 
-  if(user.twoFactor?.enabled) {
+  if (user.twoFactor?.enabled) {
     throw new AppError("Two-factor authentication is enabled", 400);
   }
-  
+
   const ok = speakeasy.totp.verify({
     secret: user.twoFactor.secret,
     encoding: "base32",
@@ -358,7 +362,7 @@ export const getTwoFactorConfirmController = asyncHandler(async (req, res) => {
 
   user.twoFactor.enabled = true;
   await user.save();
-    return res.status(200).json({
+  return res.status(200).json({
     message: "Two-factor authentication enabled successfully",
     success: true,
   });
@@ -381,7 +385,7 @@ export const getTwoFactorVerifyController = asyncHandler(async (req, res) => {
     throw new AppError("Invalid temp token", 401);
   }
   const user = await User.findById(payload.id).select("+twoFactor.secret");
- 
+
   if (!user) {
     throw new AppError("User not found", 404);
   }
@@ -426,23 +430,27 @@ export const getTwoFactorVerifyController = asyncHandler(async (req, res) => {
     maxAge: ms(config.JWT_REFRESH_SECRET_EXPIRES_IN),
   });
 
+  const { password, ...userData } = user._doc;
+
   return res.status(200).json({
     message: "Two-factor authentication successful",
     success: true,
     accessToken,
-    user,
+    user: userData,
   });
 });
 
 // 2FA Disable Controller
 export const getTwoFactorDisableController = asyncHandler(async (req, res) => {
-  const { code ,password } = req.body;
+  const { code, password } = req.body;
 
   if (!code || !password) {
     throw new AppError("2FA code and password are required", 400);
   }
 
-  const user = await User.findById(req.user._id).select("+twoFactor.secret +password");
+  const user = await User.findById(req.user._id).select(
+    "+twoFactor.secret +password",
+  );
 
   if (!user) {
     throw new AppError("User not found", 404);
@@ -475,7 +483,6 @@ export const getTwoFactorDisableController = asyncHandler(async (req, res) => {
     message: "Two-factor authentication disabled successfully",
     success: true,
   });
-
 });
 
 // Logout Controller
@@ -483,7 +490,10 @@ export const getLogoutController = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies?.refreshToken;
 
   if (refreshToken) {
-    const tokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+    const tokenHash = crypto
+      .createHash("sha256")
+      .update(refreshToken)
+      .digest("hex");
 
     const user = await User.findOne({ "refreshTokens.token": tokenHash });
     if (user) {
@@ -495,7 +505,7 @@ export const getLogoutController = asyncHandler(async (req, res) => {
       await user.save();
     }
   }
-  
+
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: config.NODE_ENV === "production",
@@ -511,7 +521,7 @@ export const getLogoutController = asyncHandler(async (req, res) => {
 
 // Token Refresh Controller
 export const getRefreshTokenController = asyncHandler(async (req, res) => {
-  const refreshToken = req.cookies?.refreshToken || req.body.refreshToken; 
+  const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
 
   if (!refreshToken) {
     throw new AppError("Refresh token missing", 401);
@@ -530,7 +540,10 @@ export const getRefreshTokenController = asyncHandler(async (req, res) => {
   if (!user) {
     throw new AppError("User not found", 404);
   }
-  const tokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+  const tokenHash = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
 
   const storedToken = user.refreshTokens.find((t) => t.token === tokenHash);
 
@@ -538,7 +551,9 @@ export const getRefreshTokenController = asyncHandler(async (req, res) => {
     throw new AppError("Refresh token not recognized", 401);
   }
   if (storedToken.expiresAt < new Date()) {
-    user.refreshTokens = user.refreshTokens.filter((t) => t.token !== tokenHash);
+    user.refreshTokens = user.refreshTokens.filter(
+      (t) => t.token !== tokenHash,
+    );
     await user.save();
     throw new AppError("Refresh token expired", 401);
   }
@@ -546,7 +561,10 @@ export const getRefreshTokenController = asyncHandler(async (req, res) => {
   // Generate new tokens
   const newAccessToken = generateAccessToken(user._id);
   const newRefreshToken = generateRefreshToken(user._id);
-  const newTokenHash = crypto.createHash("sha256").update(newRefreshToken).digest("hex");
+  const newTokenHash = crypto
+    .createHash("sha256")
+    .update(newRefreshToken)
+    .digest("hex");
 
   // Replace old refresh token with new one
   user.refreshTokens = user.refreshTokens.filter((t) => t.token !== tokenHash);
@@ -571,7 +589,6 @@ export const getRefreshTokenController = asyncHandler(async (req, res) => {
     success: true,
     accessToken: newAccessToken,
   });
-
 });
 
 // RefrshToken checker Controller (for security monitoring)
