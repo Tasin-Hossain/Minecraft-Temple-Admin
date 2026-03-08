@@ -3,13 +3,20 @@ import Logo from "../../Assets/logo.png";
 import { Link } from "react-router-dom";
 import Loader from "../../Components/Loader";
 import Button from "../../Components/ui/Button";
+import useAuth from "../../Hooks/useAuth";
 
 const TwoFactorVerify = () => {
   // loader
   const [loading, setLoading] = useState(false);
-  // Otp
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputsRef = useRef([]);
+  
+  const { useTwoFactorVerify, isLoading } = useAuth();
+
+  const handleOtpSubmit = async()=>{
+    const code = otp.join("");
+    useTwoFactorVerify(code);
+  }
 
   const handleChange = (value, index) => {
     if (/^[0-9]?$/.test(value)) {
@@ -69,13 +76,13 @@ const TwoFactorVerify = () => {
 
           <div className="flex gap-3">
 
-            {loading ? (
-              <Button >
+            {isLoading ? (
+              <Button  >
                 <Loader size={18}/>
               </Button>
             ) : (
               <Button
-                
+                onClick={handleOtpSubmit}
               >
                 Confirm
               </Button>

@@ -13,17 +13,34 @@ import { FaDiscord } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import Loader from "../../Components/Loader";
 
+import useAuth from "../../Hooks/useAuth";
+
+
 const Login = () => {
   // Loader
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Show password
+  const [formData, setFormData] = useState({
+    usernameOrEmail: "",
+    password: "",
+    stayLoggedIn: false,
+  });
 
-  const handleSubmit = (e) => {
+  const { useLogin, isLoading } = useAuth();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // এখানে তোমার login logic যাবে (API call)
-    console.log("Login attempt:", { email, password });
+
+    useLogin(formData);
+    
+  };
+
+  const handelchange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   return (
@@ -55,12 +72,12 @@ const Login = () => {
               <Input
                 required
                 label="Email or Username"
-                id="email"
+                id="usernameOrEmail"
                 placeholder="username@example.com"
-                name="email"
+                name="usernameOrEmail"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.usernameOrEmail}
+                onChange={handelchange}
               />
             </div>
 
@@ -69,12 +86,12 @@ const Login = () => {
               <div className="relative">
                 <Input
                   label="Password"
-                  name="passoword"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   id="password"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={handelchange}
                   placeholder="••••••••"
                 />
                 <button
@@ -99,7 +116,17 @@ const Login = () => {
           </div>
 
           <div className="flex items-center justify-between px-1">
-            <Checkbox label="I agree Trams & Condtions" />
+            {/* stay Login */}
+            <Checkbox
+              label="Stay log in"
+              checked={formData.stayLoggedIn}
+              onChange={() =>
+                setFormData({
+                  ...formData,
+                  stayLoggedIn: !formData.stayLoggedIn,
+                })
+              }
+            />
 
             <a href="#" className="text-(--theme) text-[14px] hover:underline">
               Forgot password?
@@ -118,6 +145,7 @@ const Login = () => {
             ) : (
               <Button
                 type="submit"
+                onSubmit={handleSubmit}
                 className="w-full py-3 flex justify-center uppercase"
               >
                 Sign In

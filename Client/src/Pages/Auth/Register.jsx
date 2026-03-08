@@ -13,9 +13,9 @@ import { FaDiscord } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import Loader from "../../Components/Loader";
 import { useAuthActions } from "../../Hooks/useAuthActions";
+import useAuth from "../../Hooks/useAuth";
 
 const Register = () => {
-  const [isLoading, setisLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // Show password
   const [registerCountdown, setRegisterCountdown] = useState(10); // Cooldown for Registerbutton
   const [canClickRegister, setCanClickRegister] = useState(false);
@@ -26,15 +26,11 @@ const Register = () => {
     agreedToTerms: false,
   });
 
-  const { REGISTER, isRegisterLoading, error } = useAuthActions();
-
-  const navigate = useNavigate();
+  const { useRegister, isLoading } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const data = await REGISTER(formData);
-    navigate("/verify", { state: { email: formData.email } });
+    const data = await useRegister(formData);
 
   };
 
@@ -168,7 +164,7 @@ const Register = () => {
 
           {/* Submit Button */}
           <div>
-            {isRegisterLoading ? (
+            {isLoading ? (
               <Button
                 type="submit"
                 className="w-full py-3 flex justify-center uppercase"

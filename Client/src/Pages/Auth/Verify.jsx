@@ -4,6 +4,7 @@ import { AiOutlineMail } from "react-icons/ai";
 import Button from "../../Components/ui/Button";
 import { useLocation } from "react-router-dom";
 import { useAuthActions } from "../../Hooks/useAuthActions";
+import useAuth from "../../Hooks/useAuth";
 
 const Verify = () => {
   const location = useLocation();
@@ -12,17 +13,16 @@ const Verify = () => {
   const [resending, setResending] = useState(false);
   const [cooldown, setCooldown] = useState(10);
 
-  const { RESEND_VERIFICATION, error } = useAuthActions();
+  const { useResendVerification } = useAuth();
 
   const handleResend = async () => {
-    if (!email) return toast.error("No email available to resend.");
 
     // already running হলে prevent multiple click
     if (resending || cooldown > 0) return;
 
     setResending(true);
 
-    const data = await RESEND_VERIFICATION(email);
+    const data = await useResendVerification(email);
 
     setCooldown(60);
     setResending(false);
@@ -115,7 +115,7 @@ const Verify = () => {
                 : "Resend Verification Email"}
           </Button>
 
-          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+
 
           <p className="text-xs text-(--muted-text) pt-2">
             Still having trouble? Contact support
