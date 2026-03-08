@@ -35,28 +35,28 @@ const userSchema = new mongoose.Schema(
       select: false, // never return password in queries by default
     },
 
-    // ─── Password Reset ────────────────────────────────
+    // ─── Password Reset 
     resetPasswordToken: String,
     resetPasswordExpires: Date,
 
-    // ─── Profile Visuals ───────────────────────────────
+    // ─── Profile Visuals 
     avatar: {
       type: String,
-      default: "https://example.com/default-avatar.png",
+      default: "https://mc-heads.net/avatar",
     },
     banner: String,
 
-    // ─── Account Status & Permissions ──────────────────
+    // ─── Account Status & Permissions 
     role: {
       type: String,
-      enum: ["user", "moderator", "admin", "banned"],
-      default: "user",
+      enum: ["management", "admin", "system-dev", "developer", "moderator","support","guest","ultimate","premium","member"],
+      default: "member",
       index: true,
     },
 
     status: {
       type: String,
-      enum: ["active", "inactive", "suspended", "banned"],
+      enum: ["suspended", "banned", "active"],
       default: "active",
     },
 
@@ -67,7 +67,7 @@ const userSchema = new mongoose.Schema(
     emailVerificationToken: { type: String, default: null },
     emailVerificationTokenExpires: { type: Date, default: null },
 
-    // ─── Authentication & Sessions ─────────────────────
+    // ─── Authentication & Sessions 
     isLoggedIn: {
       type: Boolean,
       default: false,
