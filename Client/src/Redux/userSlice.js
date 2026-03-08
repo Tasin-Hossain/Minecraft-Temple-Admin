@@ -31,6 +31,7 @@ const userSlice = createSlice({
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
+      state.isLoading = false;
       state.error = null;
       // localStorage.clear() করতে চাইলে এখানে করতে পারো, কিন্তু persist নিজে clear করবে না
     },
