@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post('/register', getRegisterController);
 router.get('/verify-email', getEmailVerificationController);
-router.post('/resend-verification', getResendVerificationEmailController);
+router.post('/resend-verification-email', getResendVerificationEmailController);
 router.post("/login", getLoginController);
 
 router.post("/2fa/enable", protect, getTwoFactorEnableController);
