@@ -17,6 +17,9 @@ const requiredEnv = [
   "APP_URL",
   "RATE_LIMIT_WINDOW_MS",
   "RATE_LIMIT_MAX",
+  "CLOUDINARY_CLOUD_NAME",
+  "CLOUDINARY_API_KEY",
+  "CLOUDINARY_API_SECRET",
 ];
 
 export const validateEnv = () => {
