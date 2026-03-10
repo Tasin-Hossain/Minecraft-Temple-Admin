@@ -101,7 +101,7 @@ const useAuth = () => {
       toast.error(message);
       return err;
     } finally {
-      dispatch(setLoading(false));
+      dispatch(setLoading(null));
     }
   };
 
