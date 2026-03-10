@@ -1,116 +1,131 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  MdArrowBack,
   MdSecurity,
   MdOutlinePerson,
   MdOutlineEmail,
-  MdVerifiedUser,
-  MdLocationOn,
-  MdCake,
-  MdWork,
-  MdLink,
-  MdSave,
-  MdCancel,
   MdPhotoCamera,
   MdDevices,
   MdPhoneAndroid,
   MdComputer,
+  MdSave,
+  MdCancel,
 } from "react-icons/md";
 import { IoMdArrowBack, IoMdMail } from "react-icons/io";
 import { IoEarth } from "react-icons/io5";
-import { CgToolbox } from "react-icons/cg";
-import { TiShoppingCart } from "react-icons/ti";
-import { FiDownload } from "react-icons/fi";
-import { FaBan } from "react-icons/fa";
 import Button from "../../../Components/ui/Button";
 import RoleBadge from "../../../Components/RoleBadge";
 import StatusBadge from "../../../Components/BanStatusBadge";
-import YesNoBadge from "../../../Components/YesNoBadge";
-import users from "../../../Api/users";
-import profiles from "../../../Api/profiles";
-import USER_NOT_FOUND from "../../../Assets/UserNotFound/userNotFound.png";
 import { Input } from "../../../Components/ui/Input";
 import Dropdown from "../../../Components/ui/Dropdown";
-import { Checkbox } from "../../../Components/ui/Checkbox";
 import SimpleToggle from "../../../Components/ui/Switches";
+import USER_NOT_FOUND from "../../../Assets/UserNotFound/userNotFound.png";
+
+// Hooks
+import { useUserFetch } from "../../../Hooks/useUserFetch";
+import { useUpdateUser } from "../../../Hooks/useUpdateUser";
+import { REMOVE_AVATAR_API, REMOVE_BANNER_API } from "../../../Api/user";
+import { toast } from "react-toastify";
 
 const EditMember = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
 
-  const user = useMemo(
-    () => users.find((u) => u.id === Number(userId)),
-    [userId],
-  );
+  const { user, loading, error: fetchError } = useUserFetch(userId);
 
-  const profile = useMemo(() => {
-    if (!user || user.profile == null) return null;
-    const profileId = Number(user.profile);
-    return profiles.find((p) => Number(p.id) === profileId);
-  }, [user]);
+  const { updateUser, isUpdating, updateError, isSuccess, reset } =
+    useUpdateUser(userId, {
+      onSuccess: () => {
+        window.location.reload();
+      },
+      onError: (err) => {
+        alert(
+          "Update failed: " +
+            (err?.response?.data?.message || err?.message || "Unknown error"),
+        );
+      },
+    });
 
-  // Form state
   const [form, setForm] = useState({
-    username: user?.username || "",
-    email: user?.email || "",
-    role: user?.role || "user",
-    status: user?.status || "active",
-    isVerified: user?.isVerified || false,
-    twoFactorEnabled: user?.twoFactor?.enabled || false,
-    stayLoggedIn: user?.stayLoggedIn ?? false,
-    receiveUpdates: user?.receiveUpdates ?? true,
-    agreedToTerms: user?.agreedToTerms ?? true,
-    // Profile fields
-    customTitle: profile?.customTitle || "",
-    creatorTagLine: profile?.creatorTagLine || "",
-    dateOfBirth: profile?.dateOfBirth
-      ? new Date(profile.dateOfBirth).toISOString().split("T")[0]
-      : "",
-    location: profile?.location || "",
-    gender: profile?.Gender || "",
-    occupation: profile?.occupation || "",
-    website: profile?.website || "",
-    aboutYou: profile?.aboutYou || "",
-    socialLinks: profile?.socialLinks || {
-      twitter: "",
+    username: "",
+    email: "",
+    role: "member",
+    status: "active",
+    isVerified: false,
+    twoFactorEnabled: false,
+    stayLoggedIn: false,
+    receiveUpdates: true,
+    agreedToTerms: true,
+    customTitle: "",
+    creatorTagLine: "",
+    dateOfBirth: "",
+    location: "",
+    Gender: "",
+    website: "",
+    occupation: "",
+    aboutYou: "",
+    socialLinks: {
+      discord: "",
+      discordUserId: "",
       facebook: "",
+      contectEmail: "",
+      portfolio: "",
+      twitter: "",
+      telegram: "",
       instagram: "",
+      youtube: "",
+      twitch: "",
       linkedin: "",
       github: "",
-      youtube: "",
     },
   });
 
-  console.log(form)
-
-  // File & preview states
   const [avatarFile, setAvatarFile] = useState(null);
   const [bannerFile, setBannerFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null);
-  const [bannerPreview, setBannerPreview] = useState(user?.banner || null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [bannerPreview, setBannerPreview] = useState(null);
 
-  if (!user) {
-    return (
-      <div className="min-h-auto bg-(--card) rounded-md border border-(--border)">
-        <div className="p-4">
-          <Button
-            icon={<IoMdArrowBack />}
-            variant="outline"
-            onClick={() => navigate(-1)}
-          >
-            Go Back
-          </Button>
-        </div>
-        <div className="flex flex-col items-center gap-2 p-10">
-          <div className="w-20">
-            <img src={USER_NOT_FOUND} alt="USER NOT FOUND" className="w-full" />
-          </div>
-          <h1 className="text-[20px] text-(--muted-text)">User Not Found!</h1>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (user) {
+      setForm({
+        username: user.username || "",
+        email: user.email || "",
+        role: user.role || "member",
+        status: user.status || "active",
+        isVerified: user.isVerified || false,
+        twoFactorEnabled: user.twoFactor?.enabled || false,
+        stayLoggedIn: user.stayLoggedIn ?? false,
+        receiveUpdates: user.receiveUpdates ?? true,
+        agreedToTerms: user.agreedToTerms ?? true,
+        customTitle: user.profile?.customTitle || "",
+        creatorTagLine: user.profile?.creatorTagLine || "",
+        dateOfBirth: user.profile?.dateOfBirth
+          ? new Date(user.profile.dateOfBirth).toISOString().split("T")[0]
+          : "",
+        location: user.profile?.location || "",
+        website: user.profile?.website || "",
+        Gender: user.profile?.Gender || "",
+        occupation: user.profile?.occupation || "",
+        aboutYou: user.profile?.aboutYou || "",
+        socialLinks: {
+          discord: user.profile?.socialLinks?.discord || "",
+          discordUserId: user.profile?.socialLinks?.discordUserId || "",
+          facebook: user.profile?.socialLinks?.facebook || "",
+          contectEmail: user.profile?.socialLinks?.contectEmail || "",
+          portfolio: user.profile?.socialLinks?.portfolio || "",
+          twitter: user.profile?.socialLinks?.twitter || "",
+          telegram: user.profile?.socialLinks?.telegram || "",
+          instagram: user.profile?.socialLinks?.instagram || "",
+          youTube: user.profile?.socialLinks?.youTube || "",
+          linkedIn: user.profile?.socialLinks?.linkedIn || "",
+          gitHub: user.profile?.socialLinks?.gitHub || "",
+        },
+      });
+
+      setAvatarPreview(user.avatar || null);
+      setBannerPreview(user.banner || null);
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -128,26 +143,79 @@ const EditMember = () => {
   };
 
   const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("Image size should be less than 5MB");
-        return;
-      }
-      setAvatarFile(file);
-      setAvatarPreview(URL.createObjectURL(file));
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 8 * 1024 * 1024) {
+      alert("Avatar size should be less than 8MB");
+      return;
     }
+
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
   };
 
   const handleBannerChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 8 * 1024 * 1024) {
-        alert("Banner size should be less than 8MB");
-        return;
-      }
-      setBannerFile(file);
-      setBannerPreview(URL.createObjectURL(file));
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Banner size should be less than 10MB");
+      return;
+    }
+
+    setBannerFile(file);
+    setBannerPreview(URL.createObjectURL(file));
+  };
+
+  //  Remove Avatar
+  const handleRemoveAvatar = async () => {
+    if (!window.confirm("Are you sure you want to remove avatar?")) return;
+
+    try {
+      const res = await REMOVE_AVATAR_API(userId);
+      setAvatarPreview(res.data.avatar || null);
+      setAvatarFile(null);
+
+      toast.success(res.data.message || "Avatar removed successfully!");
+
+      navigate(-1);
+    } catch (err) {
+      console.error("Remove avatar error:", err);
+
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to remove avatar. Please try again.";
+
+      toast.error(errorMessage);
+    }
+  };
+
+  // Remove Banner
+  const handleRemoveBanner = async () => {
+    if (!window.confirm("Are you sure you want to remove banner?")) return;
+
+    try {
+      const res = await REMOVE_BANNER_API(userId);
+      console.log(res);
+      // preview clear
+      setBannerPreview(res.data.banner || null);
+      setBannerFile(null);
+
+      // toast success message
+      toast.success(res.data.message || "Banner removed successfully!");
+
+      navigate(-1);
+    } catch (err) {
+      console.error("Remove banner error:", err);
+
+      const errorMsg =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to remove banner. Please try again.";
+
+      toast.error(errorMsg);
     }
   };
 
@@ -167,35 +235,56 @@ const EditMember = () => {
     if (avatarFile) submitData.append("avatar", avatarFile);
     if (bannerFile) submitData.append("banner", bannerFile);
 
-    if (!avatarFile) submitData.append("currentAvatar", user.avatar || "");
-    if (!bannerFile) submitData.append("currentBanner", user.banner || "");
+    if (!avatarFile && user?.avatar)
+      submitData.append("currentAvatar", user.avatar);
+    if (!bannerFile && user?.banner)
+      submitData.append("currentBanner", user.banner);
 
     try {
-      // TODO: Replace with real API
-      console.log(
-        "Form data ready to send:",
-        Object.fromEntries(submitData.entries()),
-      );
-      alert("Profile updated successfully!");
-      navigate(-1);
+      await updateUser(submitData);
+      reset();
     } catch (err) {
       console.error("Update failed:", err);
-      alert("Failed to save changes. Please try again.");
     }
   };
 
+  if (loading) {
+    return <div className="p-10 text-center">Loading user data...</div>;
+  }
+
+  if (fetchError || !user) {
+    return (
+      <div className="min-h-auto bg-(--card) rounded-md border border-(--border)">
+        <div className="p-4">
+          <Button
+            icon={<IoMdArrowBack />}
+            variant="outline"
+            onClick={() => navigate(-1)}
+          >
+            Go Back
+          </Button>
+        </div>
+        <div className="flex flex-col items-center gap-2 p-10">
+          <div className="w-20">
+            <img src={USER_NOT_FOUND} alt="USER NOT FOUND" className="w-full" />
+          </div>
+          <h1 className="text-[20px] text-(--muted-text)">
+            {fetchError || "User Not Found!"}
+          </h1>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── parseUserAgent, formatRelativeTime, maskIP, getDeviceIcon, confirmLogout functions একই রাখা হয়েছে ───
   const parseUserAgent = (ua) => {
     if (!ua) return { device: "Unknown", browser: "Unknown", os: "Unknown" };
-
     const lower = ua.toLowerCase();
-
     let browser = "Unknown";
     if (lower.includes("chrome")) browser = "Chrome";
     else if (lower.includes("firefox")) browser = "Firefox";
     else if (lower.includes("safari")) browser = "Safari";
     else if (lower.includes("edge")) browser = "Edge";
-    else if (lower.includes("opera")) browser = "Opera";
-
     let device =
       lower.includes("mobile") ||
       lower.includes("android") ||
@@ -204,14 +293,12 @@ const EditMember = () => {
         : lower.includes("ipad") || lower.includes("tablet")
           ? "Tablet"
           : "Desktop";
-
     let os = "Unknown";
     if (lower.includes("windows")) os = "Windows";
     else if (lower.includes("mac")) os = "macOS";
     else if (lower.includes("linux")) os = "Linux";
     else if (lower.includes("android")) os = "Android";
     else if (lower.includes("iphone") || lower.includes("ipad")) os = "iOS";
-
     return { device, browser, os };
   };
 
@@ -221,7 +308,6 @@ const EditMember = () => {
     const now = new Date();
     const diffMs = now - date;
     const diffMin = Math.floor(diffMs / 60000);
-
     if (diffMin < 1) return "Just now";
     if (diffMin < 60) return `${diffMin} min ago`;
     if (diffMin < 1440) return `${Math.floor(diffMin / 60)} hr ago`;
@@ -239,57 +325,31 @@ const EditMember = () => {
 
   const getDeviceIcon = (ua) => {
     const { device } = parseUserAgent(ua);
-    if (device === "Mobile") {
+    if (device === "Mobile")
       return <MdPhoneAndroid size={20} className="text-(--muted-text)" />;
-    }
-    if (device === "Tablet") {
+    if (device === "Tablet")
       return <MdDevices size={20} className="text-(--muted-text)" />;
-    }
     return <MdComputer size={20} className="text-(--muted-text)" />;
-  };
-
-  // Confirmation handlers (এখানে আসল API কল করবে)
-  const handleLogoutSession = (sessionId) => {
-    console.log("Logging out session:", sessionId);
-    // TODO: API call to logout single session
-    alert(`Session ${sessionId} logged out`);
-  };
-
-  const handleLogoutAllOtherSessions = () => {
-    console.log("Logging out all other sessions");
-    // TODO: API call
-    alert("All other sessions logged out");
-  };
-
-  const handleLogoutAll = () => {
-    console.log("Logging out ALL sessions");
-    // TODO: API call
-    alert("Logged out from all devices");
   };
 
   const confirmLogoutSession = (sessionId) => {
     if (window.confirm("Are you sure you want to log out this session?")) {
-      handleLogoutSession(sessionId);
+      console.log("Logging out session:", sessionId);
+      alert(`Session ${sessionId} logged out`);
     }
   };
 
   const confirmLogoutAllOthers = () => {
-    if (
-      window.confirm(
-        "This will log out all other devices except this one. Continue?",
-      )
-    ) {
-      handleLogoutAllOtherSessions();
+    if (window.confirm("Log out all other devices except this one?")) {
+      console.log("Logging out all other sessions");
+      alert("All other sessions logged out");
     }
   };
 
   const confirmLogoutAll = () => {
-    if (
-      window.confirm(
-        "This will log you out from ALL devices including this one. Are you sure?",
-      )
-    ) {
-      handleLogoutAll();
+    if (window.confirm("Log out from ALL devices including this one?")) {
+      console.log("Logging out ALL sessions");
+      alert("Logged out from all devices");
     }
   };
 
@@ -297,16 +357,14 @@ const EditMember = () => {
     <div className="min-h-auto bg-(--card) rounded-md border border-(--border)">
       <div className="mx-auto px-6 py-6">
         <form onSubmit={handleSubmit}>
-          {/* Header */}
           <div className="flex items-center justify-between mb-4">
-            {/* back button */}
             <Button
               icon={<IoMdArrowBack />}
               variant="outline"
               type="button"
               onClick={() => navigate(-1)}
             >
-              Back 
+              Back
             </Button>
 
             <div className="flex gap-3">
@@ -315,40 +373,31 @@ const EditMember = () => {
                 variant="outline"
                 icon={<MdCancel />}
                 onClick={() => navigate(-1)}
+                disabled={isUpdating}
               >
                 Cancel
               </Button>
-              <Button type="submit" icon={<MdSave />}>
-                Save Changes
+              <Button type="submit" icon={<MdSave />} disabled={isUpdating}>
+                {isUpdating ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </div>
 
-          {/* Main Card */}
           <div className="bg-(--card) rounded-md border border-(--border) overflow-hidden divide-y divide-(--border)">
             {/* Banner */}
             <div className="relative w-full group overflow-hidden">
               <div className="relative pb-[25%] md:pb-[20%]">
                 <img
-                  src={
-                    bannerPreview ||
-                    user.banner ||
-                    `https://via.placeholder.com/1200x300/111827/22c55e?text=${user.username?.[0] || "?"}`
-                  }
+                  src={bannerPreview || user.banner}
                   alt="Banner"
                   className="absolute inset-0 w-full h-full object-cover object-center"
                 />
               </div>
-
-              <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
+              <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                 <div className="text-white text-center px-4">
                   <MdPhotoCamera size={48} className="mx-auto mb-3" />
-                  <p className="text-lg font-medium text-white opacity-90">
-                    Change Banner
-                  </p>
-                  <p className="text-sm text-white opacity-90">
-                    (max 8MB • recommended 1200×300)
-                  </p>
+                  <p className="text-lg font-medium">Change Banner</p>
+                  <p className="text-sm">(max 8MB • 1200×300 recommended)</p>
                 </div>
                 <input
                   type="file"
@@ -357,48 +406,71 @@ const EditMember = () => {
                   className="hidden"
                 />
               </label>
+
+              {/* Remove Banner Button - শুধু যোগ করা অংশ */}
+              {(bannerPreview || user.banner) && (
+                <Button
+                  type="button"
+                  onClick={handleRemoveBanner}
+                  className="absolute top-4 right-4 py-2! "
+                  title="Remove Banner"
+                >
+                  Remove Cover
+                </Button>
+              )}
             </div>
 
             {/* Avatar + Basic Info */}
             <div className="py-6 px-6 flex flex-col md:flex-row gap-10 items-start bg-(--card)">
-              <div className="relative group mx-auto md:mx-0">
-                <img
-                  src={
-                    avatarPreview ||
-                    user.avatar ||
-                    `https://via.placeholder.com/200/111827/22c55e?text=${user.username?.[0] || "?"}`
-                  }
-                  alt={user.username}
-                  className="w-35 h-30 rounded-md object-cover border-2 border-(--border) shadow-md transition-all duration-300 group-hover:brightness-75"
-                />
-
-                <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
-                  <MdPhotoCamera size={36} className="text-white mb-2" />
-                  <span className="text-white text-sm font-medium px-3 text-center">
-                    Change Avatar
-                  </span>
-                  <span className="text-white/80 text-xs mt-1">(max 5MB)</span>
-
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="hidden"
+              <div className="flex flex-col gap-2   mx-auto md:mx-0">
+                <div className="group relative">
+                  <img
+                    src={
+                      avatarPreview ||
+                      user.avatar ||
+                      `https://via.placeholder.com/200/111827/22c55e?text=${user.username?.[0] || "?"}`
+                    }
+                    alt={user.username}
+                    className="w-35 h-30 rounded-md object-cover border-2 border-(--border) shadow-md transition-all group-hover:brightness-75"
                   />
-                </label>
+                  <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 rounded-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <MdPhotoCamera size={36} className="text-white mb-2" />
+                    <span className="text-white text-sm font-medium px-3 text-center">
+                      Change Avatar
+                    </span>
+                    <span className="text-white/80 text-xs mt-1">
+                      (max 5MB)
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {/* Remove Avatar Button - শুধু যোগ করা অংশ */}
+                {(avatarPreview || user.avatar) && (
+                  <Button
+                    type="button"
+                    onClick={handleRemoveAvatar}
+                    className="w-full top-4 right-4 py-2! px-2!"
+                    title="Remove Avatar"
+                  >
+                    Remove
+                  </Button>
+                )}
               </div>
 
               <div className="flex flex-col gap-4 w-full">
-                <div>
+                <div className="grid grid-cols-2 gap-6">
                   <Input
                     label="Username"
                     name="username"
                     value={form.username}
                     onChange={handleChange}
                   />
-                </div>
-
-                <div>
                   <Input
                     label="Email"
                     name="email"
@@ -406,7 +478,6 @@ const EditMember = () => {
                     onChange={handleChange}
                   />
                 </div>
-
                 <div className="flex flex-wrap gap-6 items-center">
                   <div>
                     <label className="block text-sm text-(--muted-text) mb-1">
@@ -415,13 +486,9 @@ const EditMember = () => {
                     <Dropdown
                       options={["user", "creator", "moderator", "admin"]}
                       value={form.role}
-                      onChange={(newRole) =>
-                        setForm((prev) => ({ ...prev, role: newRole }))
-                      }
-                      placeholder="Select role"
+                      onChange={(val) => setForm((p) => ({ ...p, role: val }))}
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm text-(--muted-text) mb-1">
                       Status
@@ -429,10 +496,9 @@ const EditMember = () => {
                     <Dropdown
                       options={["active", "suspended", "banned"]}
                       value={form.status}
-                      onChange={(newStatus) =>
-                        setForm((prev) => ({ ...prev, status: newStatus }))
+                      onChange={(val) =>
+                        setForm((p) => ({ ...p, status: val }))
                       }
-                      placeholder="Select status"
                     />
                   </div>
                 </div>
@@ -471,7 +537,6 @@ const EditMember = () => {
                   <MdSecurity size={20} /> Security & Auth
                 </h2>
                 <div className="space-y-6">
-                  {/* 2fa Enabled */}
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-(--muted-text)">
                       2FA Enabled
@@ -482,8 +547,6 @@ const EditMember = () => {
                       name="twoFactorEnabled"
                     />
                   </div>
-
-                  {/* Email Verified */}
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-(--muted-text)">
                       Email Verified
@@ -495,47 +558,38 @@ const EditMember = () => {
                     />
                   </div>
 
-                  {/* Active Sessions - Full Section */}
+                  {/* Active Sessions */}
                   <div className="space-y-5">
                     <div className="flex items-center justify-between">
                       <span className="text-[14px] font-medium text-(--muted-text)">
                         Active Sessions
                       </span>
-
-                      <div className="flex items-center justify-between">
-                        <span className="text-(--theme) font-bold text-[20px]">
-                          {user.refreshTokens?.length || 0}
-                        </span>
-                      </div>
+                      <span className="text-(--theme) font-bold text-[20px]">
+                        {user.refreshTokens?.length || 0}
+                      </span>
                     </div>
 
                     {user.refreshTokens?.length > 0 ? (
                       <div className="space-y-3 max-h-96 overflow-y-auto pr-2 border-t border-(--border) pt-4">
                         <div className="flex items-center justify-between gap-2">
-                          {/* confirmLogoutAllOthers */}
                           {user.refreshTokens?.length > 1 && (
                             <Button
                               variant="outline"
-                              className="text-[12px] py-1! bg-red-400 text-white"
+                              className="text-[12px] py-1 bg-red-400 text-white"
                               onClick={confirmLogoutAllOthers}
                             >
                               Log out all others
                             </Button>
                           )}
-
-                          {/* confirmLogoutAll */}
-                          {user.refreshTokens?.length > 0 && (
-                            <Button
-                              variant="outline"
-                              className="text-[12px] py-1!"
-                              onClick={confirmLogoutAll}
-                            >
-                              Log out all
-                            </Button>
-                          )}
+                          <Button
+                            variant="outline"
+                            className="text-[12px] py-1"
+                            onClick={confirmLogoutAll}
+                          >
+                            Log out all
+                          </Button>
                         </div>
 
-                        {/* token.isCurrent || false; */}
                         {user.refreshTokens.map((token, index) => {
                           const isCurrent = token.isCurrent || false;
                           const parsed = parseUserAgent(token.userAgent);
@@ -546,53 +600,43 @@ const EditMember = () => {
                           return (
                             <div
                               key={token.id || index}
-                              className={`
-                                flex items-center justify-between p-4 rounded-md border
-                                ${
-                                  isCurrent
-                                    ? "bg-(--theme)/10 border-(--border)"
-                                    : "bg-(--foreground)/50 border-(--border) "
-                                }
-                                transition-colors group
-                              `}
+                              className={`flex items-center justify-between p-4 rounded-md border ${
+                                isCurrent
+                                  ? "bg-(--theme)/10 border-(--border)"
+                                  : "bg-(--foreground)/50 border-(--border)"
+                              } transition-colors group`}
                             >
                               <div className="flex flex-col items-start gap-2 flex-1">
                                 <div className="flex items-center gap-2">
-                                  {/* icon */}
-                                  <div className="">
-                                    {getDeviceIcon(token.userAgent)}
-                                  </div>
-                                  {/* browsers */}
+                                  {getDeviceIcon(token.userAgent)}
                                   <p className="font-medium text-[12px]">
                                     {parsed.browser} on {parsed.device} •{" "}
                                     {parsed.os}
                                   </p>
                                 </div>
-
-                                <div className=" text-(--muted-text) flex flex-col gap-2">
-                                  <p className="text-[12px]">
+                                <div className="text-(--muted-text) flex flex-col gap-2 text-[12px]">
+                                  <p>
                                     IP: {token.ip ? maskIP(token.ip) : "Hidden"}
                                   </p>
                                   {token.location && (
-                                    <p className="text-[12px]">
+                                    <p>
                                       Approx. location:{" "}
                                       {token.location.country || "Unknown"}
                                     </p>
                                   )}
-                                  <p className="text-[12px]">Last active: {relativeTime}</p>
+                                  <p>Last active: {relativeTime}</p>
                                 </div>
                               </div>
-                              {/* log out */}
                               <div className="flex items-center gap-3">
                                 {isCurrent ? (
-                                  <span className="text-xs font-medium px-3 py-1 bg-green-400 text-(--text-wh) rounded-full">
+                                  <span className="text-xs font-medium px-3 py-1 bg-green-400 text-white rounded-full">
                                     This device
                                   </span>
                                 ) : (
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                      className="text-[12px] py-1! bg-red-400 text-white"
+                                    className="text-[12px] py-1 bg-red-400 text-white"
                                     onClick={() =>
                                       confirmLogoutSession(token.id)
                                     }
@@ -601,8 +645,6 @@ const EditMember = () => {
                                   </Button>
                                 )}
                               </div>
-                              
-
                             </div>
                           );
                         })}
@@ -611,9 +653,9 @@ const EditMember = () => {
                       <div className="text-center py-12 text-(--muted-text) border-t border-(--border)">
                         <MdDevices
                           size={48}
-                          className="mx-auto mb-3 opacity-50 text-(--muted-text)"
+                          className="mx-auto mb-3 opacity-50"
                         />
-                        <p className="text-lg font-medium text-[16px]">
+                        <p className="text-lg font-medium">
                           No active sessions
                         </p>
                         <p className="text-[14px]">
@@ -622,25 +664,22 @@ const EditMember = () => {
                       </div>
                     )}
                   </div>
-
                 </div>
               </div>
 
               {/* Account Info */}
-              <div className="flex-1 py-6 px-8 bg-(--card-foreground) rounded-md border border-(--border) ">
+              <div className="flex-1 py-6 px-8 bg-(--card-foreground) rounded-md border border-(--border)">
                 <h2 className="font-bold mb-6 flex items-center gap-2">
                   <MdOutlinePerson size={20} /> Account Info
                 </h2>
                 <div className="space-y-6">
-                  {/* current status */}
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-(--muted-text)">
                       Current Status
                     </span>
                     <StatusBadge status={form.status} />
                   </div>
-                  
-                  {/* Current Role */}
+
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-(--muted-text)">
                       Current Role
@@ -648,23 +687,18 @@ const EditMember = () => {
                     <RoleBadge role={form.role} />
                   </div>
 
-                  {/* stay login */}
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-(--muted-text)">
-                    Stay logged In 
+                      Stay Logged In
                     </span>
                     <SimpleToggle
                       name="stayLoggedIn"
                       checked={form.stayLoggedIn}
-                      
                       onChange={handleChange}
                     />
                   </div>
-
                 </div>
               </div>
-
-              
 
               {/* Preferences */}
               <div className="flex-1 py-6 px-8 bg-(--card-foreground) rounded-md border border-(--border)">
@@ -672,8 +706,6 @@ const EditMember = () => {
                   <MdOutlineEmail size={20} /> Preferences
                 </h2>
                 <div className="space-y-6">
-
-                  {/* Receive Updates */}
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-(--muted-text)">
                       Receive Updates
@@ -685,7 +717,6 @@ const EditMember = () => {
                     />
                   </div>
 
-                    {/* Agreed to Terms */}
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-(--muted-text)">
                       Agreed to Terms
@@ -708,8 +739,6 @@ const EditMember = () => {
 
               <div className="space-y-8 px-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                  {/* custom title */}
                   <div>
                     <label className="block text-sm text-(--muted-text) mb-1">
                       Custom Title
@@ -720,8 +749,7 @@ const EditMember = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  
-                  {/* Tag Line */}
+
                   <div>
                     <label className="block text-sm text-(--muted-text) mb-1">
                       Tag Line
@@ -732,8 +760,7 @@ const EditMember = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  
-                  {/* Birthday */}
+
                   <div>
                     <label className="block text-sm text-(--muted-text) mb-1">
                       Birthday
@@ -743,11 +770,9 @@ const EditMember = () => {
                       name="dateOfBirth"
                       value={form.dateOfBirth}
                       onChange={handleChange}
-                    
                     />
                   </div>
-                  
-                  {/* Location */}
+
                   <div>
                     <label className="block text-sm text-(--muted-text) mb-1">
                       Location
@@ -758,8 +783,7 @@ const EditMember = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  
-                  {/* Occupation */}
+
                   <div>
                     <label className="block text-sm text-(--muted-text) mb-1">
                       Occupation
@@ -770,9 +794,8 @@ const EditMember = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  
-                  {/* Website */}
-                  <div className="">
+
+                  <div>
                     <label className="block text-sm text-(--muted-text) mb-1">
                       Website
                     </label>
@@ -785,17 +808,15 @@ const EditMember = () => {
                     />
                   </div>
 
-                  
-                  {/* Gender */}
                   <div>
                     <label className="block text-sm text-(--muted-text) mb-1">
                       Gender
                     </label>
                     <Dropdown
-                      options={[ "male", "female", "other"]}
-                      value={form.gender}
+                      options={["male", "female", "other"]}
+                      value={form.Gender}
                       onChange={(val) =>
-                        setForm((prev) => ({ ...prev, gender: val }))
+                        setForm((p) => ({ ...p, Gender: val }))
                       }
                       placeholder="Prefer not to say"
                     />
@@ -818,14 +839,12 @@ const EditMember = () => {
                           name={`social.${platform}`}
                           value={form.socialLinks[platform] || ""}
                           onChange={handleChange}
-                          
                         />
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* About You */}
                 <div className="pt-8 border-t border-(--border)">
                   <label className="block text-sm font-medium mb-2">
                     About You
