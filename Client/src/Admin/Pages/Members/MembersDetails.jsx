@@ -1,60 +1,74 @@
 import React, { useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
-  MdArrowBack,
   MdSecurity,
-  MdMonetizationOn,
   MdOutlinePerson,
   MdOutlineEmail,
-  MdStar,
-  MdDownload,
-  MdShoppingCart,
-  MdInventory,
-  MdLogin,
-  MdAccessTime,
-  MdLock,
   MdVerifiedUser,
-  MdLocationOn,
-  MdCake,
-  MdWork,
-  MdLink,
   MdOutlineModeEdit,
+  MdPhotoCamera,
 } from "react-icons/md";
 import RoleBadge from "../../../Components/RoleBadge";
 import StatusBadge from "../../../Components/BanStatusBadge";
 import YesNoBadge from "../../../Components/YesNoBadge";
 import Button from "../../../Components/ui/Button";
-import users from "../../../Api/users";
-import profiles from "../../../Api/profiles";
-import USER_NOT_FOUND from "../../../Assets/UserNotFound/userNotFound.png";
 import { IoMdArrowBack, IoMdMail } from "react-icons/io";
-import { IoEarth, IoMailOutline } from "react-icons/io5";
+import { IoEarth } from "react-icons/io5";
 import { CgToolbox } from "react-icons/cg";
 import { TiShoppingCart } from "react-icons/ti";
 import { FiDownload } from "react-icons/fi";
-import LinkedAccountsButtons from "../../../Components/LinkedAccounts";
 import { FaBan } from "react-icons/fa";
+import LinkedAccountsButtons from "../../../Components/LinkedAccounts";
 import { Input } from "../../../Components/ui/Input";
+import USER_NOT_FOUND from "../../../Assets/UserNotFound/userNotFound.png";
+
+import { useUserFetch } from "../../../Hooks/useUserFetch";
+import Loader from "../../../Components/Loader";
+// ────────────────────────────────────────────────
+
+// ────────────────────────────────────────────────
 
 const UserDetailAdmin = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
 
-  const user = useMemo(
-    () => users.find((u) => u.id === Number(userId)),
-    [userId],
-  );
+  const { user, loading, error, refresh: refreshUser } = useUserFetch(userId);
 
-  const profile = useMemo(() => {
-    if (!user || user.profile == null) return null;
-    const profileId = Number(user.profile);
-    return profiles.find((p) => Number(p.id) === profileId);
-  }, [user]);
+  // If still loading
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex items-center justify-center text-(--muted-text)">
+          <Loader />
+        </div>
+      </div>
+    );
+  }
 
+  // API/network error
+  if (error) {
+    return (
+      <div className="min-h-auto bg-(--card) rounded-md border border-(--border) p-8">
+        <div className="flex flex-col items-center gap-4">
+          <h2 className="text-xl font-semibold text-red-500">Error</h2>
+          <p className="text-(--muted-text)">{error}</p>
+          <Button onClick={refreshUser}>Try Again</Button>
+          <Button
+            variant="outline"
+            icon={<IoMdArrowBack />}
+            onClick={() => navigate(-1)}
+          >
+            Go Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // User not found (API returned null / 404 handled in hook)
   if (!user) {
     return (
       <div className="min-h-auto bg-(--card) rounded-md border border-(--border)">
-        {/* user not found */}
         <div className="p-4">
           <Button
             icon={<IoMdArrowBack />}
@@ -65,7 +79,7 @@ const UserDetailAdmin = () => {
           </Button>
         </div>
         <div className="flex flex-col items-center gap-2 p-10">
-          <div className=" w-20 ">
+          <div className="w-20">
             <img src={USER_NOT_FOUND} alt="USER NOT FOUND" className="w-full" />
           </div>
           <h1 className="text-[20px] text-(--muted-text)">User Not Found!</h1>
@@ -74,6 +88,7 @@ const UserDetailAdmin = () => {
     );
   }
 
+  // ────── Dates ──────
   const createdAt = new Date(user.createdAt || "").toLocaleDateString("en-US", {
     dateStyle: "medium",
   });
@@ -84,12 +99,9 @@ const UserDetailAdmin = () => {
     ? new Date(user.lastLogin).toLocaleString()
     : "Never";
 
+  // ────── Stats ──────
   const stats = [
-    {
-      label: "Posts",
-      value: user.totalPosts || 0,
-      link: "/profile/sales",
-    },
+    { label: "Posts", value: user.totalPosts || 0, link: "/profile/sales" },
     {
       label: "Reactions",
       value: user.totalReactions || 0,
@@ -111,11 +123,7 @@ const UserDetailAdmin = () => {
       value: user.reviewCount || 0,
       link: "/profile/reviews",
     },
-    {
-      label: "Balance",
-      value: user.balance || 0,
-      link: "/profile/reviews",
-    },
+    { label: "Balance", value: user.balance || 0, link: "/profile/reviews" },
     {
       label: "Total Earnings",
       value: user.totalEarnings || 0,
@@ -128,16 +136,14 @@ const UserDetailAdmin = () => {
       <div className="mx-auto px-6 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          {/* Back */}
           <Button
             icon={<IoMdArrowBack />}
             variant="outline"
             onClick={() => navigate(-1)}
           >
-            Back 
+            Back
           </Button>
 
-          {/* joined and updated */}
           <div className="flex items-center gap-4 btn-outline">
             <span>
               Joined: <span className="text-(--theme)">{createdAt}</span>
@@ -151,58 +157,52 @@ const UserDetailAdmin = () => {
         {/* Main Card */}
         <div className="bg-(--card) rounded-md border border-(--border) overflow-hidden divide-y divide-(--border)">
           {/* banner */}
-          <div className="w-full overflow-hidden ">
-            <img
-              src={
-                user.banner ||
-                `https://via.placeholder.com/200/111827/22c55e?text=${user.username?.[0] || "?"}`
-              }
-              alt={user.username}
-              className="w-full h-full object-cover object-center"
-            />
+          <div className="relative w-full group overflow-hidden">
+            <div className="relative pb-[25%] md:pb-[20%]">
+              <img
+                src={user.banner}
+                alt="Banner"
+                className="absolute inset-0 w-full h-full object-cover object-center"
+              />
+            </div>
           </div>
 
           {/* Top - Avatar + Name */}
-          <div className="py-4 px-4 flex gap-16 items-start bg-(--card) ">
+          <div className="py-6 px-6 flex flex-col md:flex-row gap-10 items-start bg-(--card)">
             <div className="flex justify-between items-start text-left w-full">
               <div className="relative group flex gap-4">
-                {/* Avatar */}
                 <img
                   src={
                     user.avatar ||
                     `https://via.placeholder.com/200/111827/22c55e?text=${user.username?.[0] || "?"}`
                   }
                   alt={user.username}
-                  className="w-32 h-30 rounded-md object-cover border-2 border-(--border) transition-all duration-500 "
+                  className="w-32 h-30 rounded-md object-cover border-2 border-(--border) transition-all duration-500"
                 />
 
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-1">
-                    {/* username */}
                     <h1 className="mb-0">{user.username}</h1>
-                    {/* isverifyed */}
                     {user.isVerified && <MdVerifiedUser size={18} />}
                   </div>
-                  <div className=" flex items-center gap-2">
-                    {/* role */}
+
+                  <div className="flex items-center gap-2">
                     <RoleBadge role={user.role} />
-                    {/* status */}
                     <StatusBadge status={user.status} />
                   </div>
-                  {/* email */}
+
                   <div className="flex items-center gap-1">
                     <IoMdMail size={19} />
                     <p className="text-[14px]">{user.email}</p>
                   </div>
 
-                  {/* stats */}
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">
                       <CgToolbox size={19} />
                       <h1 className="mb-0 text-(--muted-text) text-[14px]">
                         <span className="text-(--theme) font-bold text-[14px]">
-                          {user.totalResources || 0}{" "}
-                        </span>
+                          {user.totalResources || 0}
+                        </span>{" "}
                         Resources
                       </h1>
                     </div>
@@ -210,7 +210,6 @@ const UserDetailAdmin = () => {
                     <div className="flex items-center gap-1">
                       <TiShoppingCart size={19} />
                       <h1 className="mb-0 text-(--muted-text) text-[14px]">
-                        {" "}
                         <span className="text-(--theme) font-bold text-[14px]">
                           {user.totalSales || 0}
                         </span>{" "}
@@ -230,8 +229,16 @@ const UserDetailAdmin = () => {
                   </div>
                 </div>
               </div>
+              {
+                
+              }
               <div className="flex gap-2">
-                <Button icon={<MdOutlineModeEdit />} onClick={()=> navigate(`/admin/all-members/edit/${user.id}`)}>Edit</Button>
+                <Button
+                  icon={<MdOutlineModeEdit />}
+                  onClick={() => navigate(`/admin/users/${user.id}/edit`)}
+                >
+                  Edit
+                </Button>
                 <Button variant="outline" icon={<FaBan />}>
                   Ban {user.username}
                 </Button>
@@ -239,11 +246,11 @@ const UserDetailAdmin = () => {
             </div>
           </div>
 
-          {/*  Stats */}
+          {/* Stats */}
           <div className="py-4 px-4">
-            <div className="flex items-center justify-evenly ">
+            <div className="flex items-center justify-evenly">
               {stats.map((stat, idx) => (
-                <div key={idx} className={`flex flex-col items-center`}>
+                <div key={idx} className="flex flex-col items-center">
                   <Link to={stat.link}>
                     <h1 className="mb-1 text-[14px] text-(--muted-text) hover:text-(--theme) hover:underline">
                       {stat.label}
@@ -258,39 +265,32 @@ const UserDetailAdmin = () => {
             </div>
           </div>
 
-          {/*  Security, Account, Preferences */}
-          <div className="flex justify-evenly py-4 px-4">
+          {/* Security / Account / Preferences */}
+          <div className="flex justify-evenly py-4 px-4 flex-wrap gap-6">
             {/* Security & Auth */}
-            <div className="w-[30%] py-6 px-8 bg-(--card-foreground) rounded-md border border-(--border)">
-              <h1 className=" font-bold mb-8 flex items-center gap-2 justify-start">
+            <div className="w-full md:w-[30%] py-6 px-8 bg-(--card-foreground) rounded-md border border-(--border)">
+              <h1 className="font-bold mb-8 flex items-center gap-2">
                 <MdSecurity size={20} /> Security & Auth
               </h1>
-              <div className="space-y-8 ">
-                {/* 2fa enabled */}
+              <div className="space-y-8">
                 <div className="flex items-center justify-between">
                   <span className="text-[14px] text-(--muted-text)">
                     2FA Enabled
                   </span>
                   <YesNoBadge value={user.twoFactor?.enabled ?? false} />
                 </div>
-
-                {/* email verified */}
                 <div className="flex items-center justify-between">
                   <span className="text-[14px] text-(--muted-text)">
                     Email Verified
                   </span>
                   <YesNoBadge value={user.isVerified} />
                 </div>
-
-                {/* password reset */}
                 <div className="flex items-center justify-between">
                   <span className="text-[14px] text-(--muted-text)">
                     Password Reset Pending
                   </span>
-                  <YesNoBadge value={user.resetPasswordToken} />
+                  <YesNoBadge value={!!user.resetPasswordToken} />
                 </div>
-
-                {/* acctive sessions */}
                 <div className="flex items-center justify-between">
                   <span className="text-[14px] text-(--muted-text)">
                     Active Sessions
@@ -302,22 +302,18 @@ const UserDetailAdmin = () => {
               </div>
             </div>
 
-            {/* Account & Activity */}
-            <div className="w-[30%] py-6 px-8 bg-(--card-foreground) rounded-md border border-(--border) ">
-              <h1 className="font-bold mb-8 flex items-center gap-2 justify-start">
+            {/* Account Info */}
+            <div className="w-full md:w-[30%] py-6 px-8 bg-(--card-foreground) rounded-md border border-(--border)">
+              <h1 className="font-bold mb-8 flex items-center gap-2">
                 <MdOutlinePerson size={20} /> Account Info
               </h1>
-
-              <div className="space-y-8 ">
-                {/* user status */}
+              <div className="space-y-8">
                 <div className="flex items-center justify-between">
                   <span className="text-[14px] text-(--muted-text)">
                     Current Status
                   </span>
                   <StatusBadge status={user.status} />
                 </div>
-
-                {/* last login */}
                 <div className="flex items-center justify-between">
                   <span className="text-[14px] text-(--muted-text)">
                     Last Login
@@ -326,174 +322,161 @@ const UserDetailAdmin = () => {
                     {lastLogin}
                   </span>
                 </div>
-
-                {/* loged in now */}
                 <div className="flex items-center justify-between">
                   <span className="text-[14px] text-(--muted-text)">
                     Logged In Now
                   </span>
-                  <YesNoBadge value={user.isLoggedIn} />
+                  <YesNoBadge value={user.isLoggedIn ?? false} />
                 </div>
-
-                {/* stay log in  */}
                 <div className="flex items-center justify-between">
                   <span className="text-[14px] text-(--muted-text)">
                     Stay Logged In
                   </span>
-                  <YesNoBadge value={user.stayLoggedIn} />
+                  <YesNoBadge value={user.stayLoggedIn ?? false} />
                 </div>
               </div>
             </div>
 
-            {/* Preferences & Connections */}
-            <div className="w-[30%] py-6 px-8 bg-(--card-foreground) rounded-md border border-(--border) ">
-              <h1 className="font-bold mb-8 flex items-center gap-2 justify-start">
+            {/* Preferences */}
+            <div className="w-full md:w-[30%] py-6 px-8 bg-(--card-foreground) rounded-md border border-(--border)">
+              <h1 className="font-bold mb-8 flex items-center gap-2">
                 <MdOutlineEmail size={20} /> Preferences
               </h1>
-
-              <div className="space-y-8 ">
-                {/* receiveUpdates */}
+              <div className="space-y-8">
                 <div className="flex items-center justify-between">
                   <span className="text-[14px] text-(--muted-text)">
                     Receive Updates
                   </span>
-                  <YesNoBadge value={user.receiveUpdates} />
+                  <YesNoBadge value={user.receiveUpdates ?? false} />
                 </div>
-
-                {/* agreedToTerms */}
                 <div className="flex items-center justify-between">
                   <span className="text-[14px] text-(--muted-text)">
                     Agreed to Terms
                   </span>
-                  <YesNoBadge value={user.agreedToTerms} />
+                  <YesNoBadge value={user.agreedToTerms ?? false} />
                 </div>
-
-                {/* link account */}
                 <div className="flex items-center justify-between">
                   <span className="text-[14px] text-(--muted-text)">
                     Linked Accounts
                   </span>
-
                   <LinkedAccountsButtons user={user} />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Profile Details  */}
+          {/* Profile Details */}
           <div className="py-6 px-6">
             <h1 className="flex items-center gap-2 px-4 mb-6 text-lg font-semibold">
               <MdOutlinePerson size={25} /> Profile Information
             </h1>
 
-            {profile ? (
+            {user.profile ? (
               <div className="space-y-8 px-8">
-                {/* Basic Info Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* customTitle value*/}
-                  {profile.customTitle && (
+                  {user.profile.customTitle && (
                     <div>
                       <label className="block text-sm text-(--muted-text) mb-1">
                         Custom Title
                       </label>
-                      <Input value={profile.customTitle} />
+                      <Input value={user.profile.customTitle} readOnly />
                     </div>
                   )}
 
-                  {/* custom Tag line value*/}
-                  {profile.creatorTagLine && (
+                  {user.profile.creatorTagLine && (
                     <div>
                       <label className="block text-sm text-(--muted-text) mb-1">
                         Custom TagLine
                       </label>
-                      <Input value={profile.creatorTagLine} />
+                      <Input value={user.profile.creatorTagLine} readOnly />
                     </div>
                   )}
 
-                  {/* Birthday value*/}
-                  {profile.dateOfBirth && (
+                  {user.profile.dateOfBirth && (
                     <div>
                       <label className="block text-sm text-(--muted-text) mb-1">
                         Birthday
                       </label>
-                      <Input type="date" value={profile.dateOfBirth} />
+                      <Input
+                        type="date"
+                        value={user.profile.dateOfBirth}
+                        readOnly
+                      />
                     </div>
                   )}
 
-                  {/* Location value */}
-                  {profile.location && (
+                  {user.profile.location && (
                     <div>
                       <label className="block text-sm text-(--muted-text) mb-1">
                         Location
                       </label>
-                      <Input value={profile.location} />
+                      <Input value={user.profile.location} readOnly />
                     </div>
                   )}
 
-                  {/* gender value*/}
-                  {profile.Gender && (
+                  {user.profile.Gender && (
                     <div>
                       <label className="block text-sm text-(--muted-text) mb-1">
                         Gender
                       </label>
-                      <Input value={profile.Gender} />
+                      <Input value={user.profile.Gender} readOnly />
                     </div>
                   )}
 
-                  {/* occupation value*/}
-                  {profile.occupation && (
+                  {user.profile.occupation && (
                     <div>
                       <label className="block text-sm text-(--muted-text) mb-1">
                         Occupation
                       </label>
-                      <Input value={profile.occupation} />
+                      <Input value={user.profile.occupation} readOnly />
                     </div>
                   )}
 
-                  {/* website value*/}
-                  {profile.website && (
+                  {user.profile.website && (
                     <div>
                       <label className="block text-sm text-(--muted-text) mb-1">
-                        website
+                        Website
                       </label>
-                      <Input value={profile.website} />
+                      <Input value={user.profile.website} readOnly />
                     </div>
                   )}
                 </div>
 
                 {/* Social Links */}
-                {Object.values(profile.socialLinks || {}).some((v) => v) && (
-                  <div className="pt-8 border-t border-(--border)">
-                    <h3 className="flex items-center gap-2 mb-5 font-semibold text-lg">
-                      <IoEarth size={22} /> Social Links
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {Object.entries(profile.socialLinks).map(
-                        ([key, value]) =>
-                          value ? (
-                            <div key={key}>
-                              <label className="block text-sm text-(--muted-text) mb-1 capitalize">
-                                {key}
-                              </label>
-                              <Input value={profile.socialLinks[key] || ""} />
-                            </div>
-                          ) : null,
-                      )}
+                {user.profile.socialLinks &&
+                  Object.values(user.profile.socialLinks).some(Boolean) && (
+                    <div className="pt-8 border-t border-(--border)">
+                      <h3 className="flex items-center gap-2 mb-5 font-semibold text-lg">
+                        <IoEarth size={22} /> Social Links
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {Object.entries(user.profile.socialLinks).map(
+                          ([key, value]) =>
+                            value ? (
+                              <div key={key}>
+                                <label className="block text-sm text-(--muted-text) mb-1 capitalize">
+                                  {key}
+                                </label>
+                                <Input value={value} readOnly />
+                              </div>
+                            ) : null,
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* About Me */}
-                {profile.aboutYou && (
+                {user.profile.aboutYou && (
                   <div className="pt-8 border-t border-(--border)">
                     <label className="block text-sm font-medium mb-2">
                       About You
                     </label>
-
-                    <div className="w-full px-4 py-3 bg-(--card-foreground) border border-(--border) rounded-md resize-y ">
+                    <div className="w-full px-4 py-3 bg-(--card-foreground) border border-(--border) rounded-md">
                       <div
-                        className="py-2 px-6 rounded-md bg-(--card-foreground) text-[14px] prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: profile.aboutYou }}
+                        className="py-2 px-6 prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{
+                          __html: user.profile.aboutYou,
+                        }}
                       />
                     </div>
                   </div>
