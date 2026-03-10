@@ -1,10 +1,16 @@
 import express from "express";
 import errorHandler from "./middlewares/errorHandler.js";
 import authRouter from "./routes/auth.route.js";
+import userRouter from "./routes/user.route.js";
 import AppError from "./utils/AppError.js";
 import { config } from "./config/env.js";
+import cookieParser from "cookie-parser";
 import cors from "cors";
+
+
 const app = express();
+app.use(cookieParser());
+
 
 const allowedOrigins = [
   config.FRONTEND_URL,    
@@ -32,6 +38,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Auth Routes
 app.use('/api/auth',authRouter)
+app.use('/api',userRouter)
 
 
 app.get("/", (req, res) => {res.json({ok: true,})});
