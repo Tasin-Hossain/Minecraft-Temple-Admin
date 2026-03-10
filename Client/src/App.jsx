@@ -32,9 +32,9 @@ const App = () => {
       
         { path: "dashboard", element: <Dashboard /> },
 
-        { path: "/admin/all-members", element: <AllMembers /> },
-        { path: "/admin/all-members/:userId", element: <MembersDetails /> },
-        { path: "/admin/all-members/edit/:userId", element: <EditMember /> },
+        { path: "/admin/users", element: <AllMembers /> },
+        { path: "/admin/users/:userId", element: <MembersDetails /> },
+        { path: "/admin/users/:userId/edit", element: <EditMember /> },
 
         { path: "/admin/components", element: <Components /> },
         { path: "/admin/admin-theme-change", element: <AdminThemeChange /> },
