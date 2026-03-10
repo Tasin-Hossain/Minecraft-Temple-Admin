@@ -208,11 +208,10 @@ export const getResendVerificationEmailController = asyncHandler(
 export const getLoginController = asyncHandler(async (req, res) => {
   const { usernameOrEmail, password, stayLoggedIn } = req.body;
 
-  // Validate input
   if (!usernameOrEmail || !password) {
     throw new AppError("Username/email and password are required", 400);
   }
-  // Find user by email or username
+
   const user = await User.findOne({
     $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
   }).select("+password");
@@ -221,21 +220,20 @@ export const getLoginController = asyncHandler(async (req, res) => {
     throw new AppError("User not Found", 404);
   }
 
-  // Check if email is activated
   if (user.status !== "active") {
     throw new AppError("Account not active", 403);
   }
 
-  // Check password
   const passwordMatch = await bcrypt.compare(password, user.password);
+
   if (!passwordMatch) {
     throw new AppError("Invalid password!", 401);
   }
 
-  // If 2FA enabled,
+  // 2FA
   if (user.twoFactor?.enabled) {
     const tempToken = generateTempToken(user._id);
-    console.log("2FA required, temp token issued:", tempToken);
+
     return res.status(200).json({
       success: false,
       need2FA: true,
@@ -247,9 +245,15 @@ export const getLoginController = asyncHandler(async (req, res) => {
   const accessToken = generateAccessToken(user._id);
   let refreshToken = generateRefreshToken(user._id);
 
+  // HASH refresh token for DB
+  const tokenHash = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
+
   if (stayLoggedIn) {
     user.refreshTokens.push({
-      token: refreshToken,
+      token: tokenHash,
       userAgent: req.headers["user-agent"],
       ip: req.ip,
       lastUsed: new Date(),
@@ -257,21 +261,27 @@ export const getLoginController = asyncHandler(async (req, res) => {
         Date.now() + ms(config.JWT_REFRESH_SECRET_EXPIRES_IN),
       ),
     });
+
     await user.save();
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "Strict",
-      maxAge: ms(config.JWT_REFRESH_SECRET_EXPIRES_IN), //30days
+      secure: config.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      maxAge: ms(config.JWT_REFRESH_SECRET_EXPIRES_IN),
     });
 
     user.stayLoggedIn = true;
   } else {
     refreshToken = generateRefreshToken(user._id, "1d");
 
+    const shortTokenHash = crypto
+      .createHash("sha256")
+      .update(refreshToken)
+      .digest("hex");
+
     user.refreshTokens.push({
-      token: refreshToken,
+      token: shortTokenHash,
       userAgent: req.headers["user-agent"],
       ip: req.ip,
       lastUsed: new Date(),
@@ -282,9 +292,9 @@ export const getLoginController = asyncHandler(async (req, res) => {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "Strict",
-      maxAge: 1 * 24 * 60 * 60 * 1000, // 1 days
+      secure: config.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      maxAge: 1 * 24 * 60 * 60 * 1000,
     });
 
     user.stayLoggedIn = false;
@@ -293,10 +303,10 @@ export const getLoginController = asyncHandler(async (req, res) => {
   user.isLoggedIn = true;
   user.lastLogin = new Date();
 
-  // Send safe user data
   const { password: pwd, ...userData } = user._doc;
 
   await user.save();
+
   return res.status(200).json({
     message: "Login successful",
     success: true,
@@ -521,7 +531,7 @@ export const getLogoutController = asyncHandler(async (req, res) => {
 
 // Token Refresh Controller
 export const getRefreshTokenController = asyncHandler(async (req, res) => {
-  const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+  const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
 
   if (!refreshToken) {
     throw new AppError("Refresh token missing", 401);
@@ -535,11 +545,13 @@ export const getRefreshTokenController = asyncHandler(async (req, res) => {
     throw new AppError("Invalid refresh token", 401);
   }
 
-  const user = await User.findById(payload.id);
+  const user = await User.findById(payload.id).select("+refreshTokens.token");;
 
   if (!user) {
     throw new AppError("User not found", 404);
   }
+
+  // hash incoming refresh token
   const tokenHash = crypto
     .createHash("sha256")
     .update(refreshToken)
@@ -550,24 +562,32 @@ export const getRefreshTokenController = asyncHandler(async (req, res) => {
   if (!storedToken) {
     throw new AppError("Refresh token not recognized", 401);
   }
+
   if (storedToken.expiresAt < new Date()) {
     user.refreshTokens = user.refreshTokens.filter(
       (t) => t.token !== tokenHash,
     );
+
     await user.save();
+
     throw new AppError("Refresh token expired", 401);
   }
 
-  // Generate new tokens
+  // generate new tokens
   const newAccessToken = generateAccessToken(user._id);
   const newRefreshToken = generateRefreshToken(user._id);
+
+  // hash new refresh token
   const newTokenHash = crypto
     .createHash("sha256")
     .update(newRefreshToken)
     .digest("hex");
 
-  // Replace old refresh token with new one
+
+  // remove old refresh token
   user.refreshTokens = user.refreshTokens.filter((t) => t.token !== tokenHash);
+
+  // store new refresh token
   user.refreshTokens.push({
     token: newTokenHash,
     userAgent: req.headers["user-agent"],
@@ -575,18 +595,20 @@ export const getRefreshTokenController = asyncHandler(async (req, res) => {
     lastUsed: new Date(),
     expiresAt: new Date(Date.now() + ms(config.JWT_REFRESH_SECRET_EXPIRES_IN)),
   });
+
   await user.save();
 
+  // set cookie
   res.cookie("refreshToken", newRefreshToken, {
     httpOnly: true,
     secure: config.NODE_ENV === "production",
-    sameSite: "Strict",
+    sameSite: config.NODE_ENV === "production" ? "None" : "Lax",
     maxAge: ms(config.JWT_REFRESH_SECRET_EXPIRES_IN),
   });
 
   return res.status(200).json({
-    message: "Token refreshed successfully",
     success: true,
+    message: "Token refreshed successfully",
     accessToken: newAccessToken,
   });
 });
@@ -596,14 +618,18 @@ export const getCheckRefreshTokenController = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
 
   if (!refreshToken) {
-    return res.status(200).json({
+    return res.status(401).json({
       valid: false,
       message: "No refresh token provided",
     });
   }
   try {
     jwt.verify(refreshToken, config.JWT_REFRESH_SECRET);
-    throw new AppError("Token is valid ", 401);
+    return res.status(200).json({
+      valid: false,
+      message: "Token is valid",
+      refreshToken,
+    });
   } catch (err) {
     return res.status(200).json({
       valid: false,
