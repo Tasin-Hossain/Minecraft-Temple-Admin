@@ -3,7 +3,8 @@ import Logo from "../../Assets/logo.png";
 import Loader from "../../Components/Loader";
 import Button from "../../Components/ui/Button";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useAuthActions } from "../../Hooks/useAuthActions";
+import { VERIFY_EMAIL_API } from "../../Api/auth";
+
 const VerifyEmail = () => {
   const [status, setStatus] = useState("loading");
   const [errorMsg, setErrorMsg] = useState();
@@ -11,7 +12,7 @@ const VerifyEmail = () => {
 
   const navigate = useNavigate();
 
-  const { VERIFY_EMAIL } = useAuthActions();
+
 
   useEffect(() => {
     const token = search.get("token");
@@ -25,7 +26,7 @@ const VerifyEmail = () => {
 
     const verify = async () => {
       try {
-        const res = await VERIFY_EMAIL(token, id);
+        const res = await VERIFY_EMAIL_API(token, id);
         setStatus("success");
         setTimeout(() => {
           navigate("/login");

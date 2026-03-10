@@ -12,7 +12,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaDiscord } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import Loader from "../../Components/Loader";
-import { useAuthActions } from "../../Hooks/useAuthActions";
 import useAuth from "../../Hooks/useAuth";
 
 const Register = () => {

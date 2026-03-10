@@ -3,7 +3,7 @@ import Logo from "../../Assets/logo.png";
 import { AiOutlineMail } from "react-icons/ai";
 import Button from "../../Components/ui/Button";
 import { useLocation } from "react-router-dom";
-import { useAuthActions } from "../../Hooks/useAuthActions";
+
 import useAuth from "../../Hooks/useAuth";
 
 const Verify = () => {
