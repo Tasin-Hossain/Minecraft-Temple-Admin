@@ -34,7 +34,7 @@ function RoleBadge({ role }) {
       Icon = FaTools;
       break;
 
-    case "system dev":
+    case "system-dev":
       badgeClasses = "bg-[#FF2424] ";
       Icon = FaServer;
       break;
@@ -81,7 +81,7 @@ function RoleBadge({ role }) {
       `}
     >
       <Icon className="h-3 w-3.5" />
-      {role || "Member"}
+      {role || "member"}
     </span>
   );
 }

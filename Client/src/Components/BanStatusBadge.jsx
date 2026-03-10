@@ -24,7 +24,7 @@ function BanStatusBadge({ status = "Active" }) {
       label = "Banned";
       break;
 
-    default:
+    case "active":
       badgeClasses = "bg-(--status-active) text-green-500"; // গাঢ় ধূসর
       Icon = FaCheckCircle;
       label = "Active";
