@@ -1,6 +1,5 @@
 import React, { memo, useEffect, useRef, useState } from "react";
 import { MdOutlineDashboard } from "react-icons/md";
-import { FiMoon } from "react-icons/fi";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
 import Logo from "../../Assets/logo.png";
@@ -36,7 +35,7 @@ const menu = [
   {
     name: "Members",
     icon: PiUsersThree,
-    path: "/admin/all-members",
+    path: "/admin/users",
   },
   {
     name: "Products",
