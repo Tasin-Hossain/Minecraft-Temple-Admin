@@ -17,7 +17,7 @@ const userSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
-      state.isLoading = false;
+      state.isLoading = null;
       state.error = null;
     },
     setLoading: (state, action) => {
@@ -31,9 +31,10 @@ const userSlice = createSlice({
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      state.isLoading = false;
+      state.isLoading = null;
       state.error = null;
-      // localStorage.clear() করতে চাইলে এখানে করতে পারো, কিন্তু persist নিজে clear করবে না
+      localStorage.removeItem("accessToken");
+
     },
   },
 });
