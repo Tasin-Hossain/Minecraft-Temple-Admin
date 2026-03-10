@@ -35,21 +35,36 @@ const userSchema = new mongoose.Schema(
       select: false, // never return password in queries by default
     },
 
-    // ─── Password Reset 
+    // ─── Password Reset
     resetPasswordToken: String,
     resetPasswordExpires: Date,
 
-    // ─── Profile Visuals 
+    // ─── Profile Visuals
     avatar: {
       type: String,
       default: "https://mc-heads.net/avatar",
     },
-    banner: String,
-
-    // ─── Account Status & Permissions 
+    banner: {
+      type: String,
+      default: "https://i.imgur.com/QwErTyU.jpg",
+    },
+    avatarPublicId: { type: String },
+    bannerPublicId: { type: String },
+    // ─── Account Status & Permissions
     role: {
       type: String,
-      enum: ["management", "admin", "system-dev", "developer", "moderator","support","guest","ultimate","premium","member"],
+      enum: [
+        "management",
+        "admin",
+        "system-dev",
+        "developer",
+        "moderator",
+        "support",
+        "guest",
+        "ultimate",
+        "premium",
+        "member",
+      ],
       default: "member",
       index: true,
     },
@@ -67,7 +82,7 @@ const userSchema = new mongoose.Schema(
     emailVerificationToken: { type: String, default: null },
     emailVerificationTokenExpires: { type: Date, default: null },
 
-    // ─── Authentication & Sessions 
+    // ─── Authentication & Sessions
     isLoggedIn: {
       type: Boolean,
       default: false,
@@ -121,7 +136,7 @@ const userSchema = new mongoose.Schema(
         email: String,
         displayName: String,
         avatar: String,
-        accessToken: String, 
+        accessToken: String,
         refreshToken: String,
         connectedAt: { type: Date, default: Date.now },
       },
@@ -130,6 +145,8 @@ const userSchema = new mongoose.Schema(
     profile: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Profile",
+      unique: true,
+      index: true,
     },
 
     balance: {

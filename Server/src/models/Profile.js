@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 const profileSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", unique: true },
@@ -12,6 +14,7 @@ const profileSchema = new mongoose.Schema(
     socialLinks: {
       discord: String,
       discordUserId: String,
+      facebook: String,
       contectEmail: String,
       portfolio: String,
       twitter: String,
