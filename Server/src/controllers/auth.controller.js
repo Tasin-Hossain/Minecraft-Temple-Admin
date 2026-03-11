@@ -16,6 +16,7 @@ import {
 } from "../utils/tokenGenerator.js";
 import ms from "ms";
 import qrcode from "qrcode";
+import Profile from "../models/Profile.js";
 
 // Register Controller
 export const getRegisterController = asyncHandler(async (req, res) => {
@@ -31,12 +32,11 @@ export const getRegisterController = asyncHandler(async (req, res) => {
   if (!password) {
     throw new AppError("Password is required", 400);
   }
-
   if (!agreedToTerms) {
     throw new AppError("You must agree to the terms and privacy policy", 400);
   }
 
-  // 2. Check for existing user
+  // 2. Check existing user
   const existingUser = await User.findOne({ $or: [{ email }, { username }] });
 
   if (existingUser) {
@@ -49,13 +49,13 @@ export const getRegisterController = asyncHandler(async (req, res) => {
   }
 
   // 3. Hash password
-  const hashedPassword = await bcrypt.hash(password, 12); // 12 rounds better for 2025
+  const hashedPassword = await bcrypt.hash(password, 12);
 
-  // 4. Generate secure verification token
+  // 4. Email verification token
   const emailVerificationToken = crypto.randomBytes(32).toString("hex");
-  const emailVerificationTokenExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+  const emailVerificationTokenExpires = Date.now() + 15 * 60 * 1000;
 
-  // 5. Create user (inside transaction if possible)
+  // 5. Create user
   const user = await User.create({
     username,
     email,
@@ -65,9 +65,19 @@ export const getRegisterController = asyncHandler(async (req, res) => {
     emailVerificationTokenExpires,
   });
 
+  // 🔹 6. Create Profile automatically
+  const profile = await Profile.create({
+    user: user._id,
+  });
+
+  // 🔹 7. Attach profile to user
+  user.profile = profile._id;
+  await user.save();
+
   try {
-    // 6. Send verification email
+    // 8. Send verification email
     const verifyUrl = `${config.FRONTEND_URL}/verify-email?token=${emailVerificationToken}&id=${user._id}`;
+
     const verificationTemplate = verificationEmail({
       name: user.username,
       verifyUrl,
@@ -75,15 +85,17 @@ export const getRegisterController = asyncHandler(async (req, res) => {
 
     await sendEmail(user.email, verificationTemplate);
   } catch (emailError) {
-    // Email failed → delete the user (rollback)
+    // rollback user + profile
+    await Profile.findByIdAndDelete(profile._id);
     await User.findByIdAndDelete(user._id);
+
     throw new AppError(
       "Failed to send verification email. Please try again later.",
-      500,
+      500
     );
   }
 
-  // 8. Success response
+  // 9. Success response
   res.status(201).json({
     success: true,
     message:
