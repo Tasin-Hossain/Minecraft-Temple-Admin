@@ -16,9 +16,10 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Modal from "../../../Components/PopUp";
 
 // assuming api is imported where deleteUser is defined
-import api from "../../../Api/users"; // adjust path
 import { useAllUsers } from "../../../Hooks/useAllUsers";
 import Loader from "../../../Components/Loader";
+import { DELETE_USER_BY_ID_API } from "../../../Api/user";
+import { toast } from "react-toastify";
 
 
 const AllMembers = () => {
@@ -55,11 +56,13 @@ const AllMembers = () => {
     if (!userToDelete?._id) return;
 
     try {
-      await api.deleteUser(userToDelete._id);
-      refresh(); // list refresh after delete
+      await DELETE_USER_BY_ID_API(userToDelete._id);
+      refresh(); 
+      toast.success("Users delete Successfully")
     } catch (err) {
       console.error("Delete failed:", err);
-      // TODO: toast/notification দেখাতে পারো
+      toast.error(err);
+
     } finally {
       setShowDeleteModal(false);
       setUserToDelete(null);
