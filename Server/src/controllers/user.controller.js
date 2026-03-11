@@ -387,3 +387,54 @@ export const removeBanner = asyncHandler(async (req, res) => {
 //     gallery: user.gallery
 //   });
 // });
+
+// Delete user
+
+export const deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  // Authorization (owner or admin)
+  if (
+    req.user._id.toString() !== user._id.toString() &&
+    req.user.role !== "admin"
+  ) {
+    res.status(403);
+    throw new Error("Not authorized to delete this user");
+  }
+
+  // ───────── Cloudinary Media Delete ─────────
+  const mediaPublicIds = [user.avatarPublicId, user.bannerPublicId].filter(
+    Boolean
+  );
+
+  for (const publicId of mediaPublicIds) {
+    try {
+      await cloudinary.uploader.destroy(publicId);
+    } catch (err) {
+      console.error("Cloudinary delete error:", err.message);
+    }
+  }
+
+  // ───────── Profile Delete ─────────
+  if (user.profile) {
+    await Profile.findByIdAndDelete(user.profile);
+  }
+
+  // ───────── Refresh Tokens Clear ─────────
+  user.refreshTokens = [];
+
+  // ───────── Delete User ─────────
+  await user.deleteOne();
+
+  res.status(200).json({
+    success: true,
+    message: "User, profile, media and sessions deleted successfully",
+  });
+});

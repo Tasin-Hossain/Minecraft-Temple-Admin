@@ -1,6 +1,7 @@
 import express from "express";
 import { protect } from "../middlewares/authMiddleware.js"; // admin middleware যোগ করো যদি থাকে
 import {
+  deleteUser,
   getAllUsers,
   getUserById,
   getUserUpdate,
@@ -22,5 +23,7 @@ router.put("/users/:id", protect, uploadProfileMedia, updateUser);
 router.delete('/users/:id/avatar', protect, removeAvatar);
 router.delete('/users/:id/banner', protect, removeBanner);
 // router.delete('/users/:id/gallery/:index', protect, removeGalleryImage);
+
+router.delete("/users/:id", protect, deleteUser);
 
 export default router;
