@@ -484,7 +484,18 @@ const EditMember = () => {
                       Role
                     </label>
                     <Dropdown
-                      options={["user", "creator", "moderator", "admin"]}
+                      options={[
+                        "management",
+                        "admin",
+                        "system-dev",
+                        "developer",
+                        "moderator",
+                        "support",
+                        "guest",
+                        "ultimate",
+                        "premium",
+                        "member",
+                      ]}
                       value={form.role}
                       onChange={(val) => setForm((p) => ({ ...p, role: val }))}
                     />
