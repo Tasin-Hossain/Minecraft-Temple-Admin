@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import Profile from "../models/Profile.js";
 import cloudinary from "../config/cloudinary.js";
 import { extractPublicId } from "../helpers/extractPublicId.js";
+import AppError from "../utils/AppError.js";
 /**
  * |@desc   Get all users (Admin / Management only)
  * |@route   GET /api/users
@@ -389,7 +390,6 @@ export const removeBanner = asyncHandler(async (req, res) => {
 // });
 
 // Delete user
-
 export const deleteUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -436,5 +436,42 @@ export const deleteUser = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "User, profile, media and sessions deleted successfully",
+  });
+});
+
+export const deleteAllUsers = asyncHandler(async (req, res) => {
+  // Only admin allowed
+  if (req.user.role !== "admin") {
+    throw new AppError("Not authorized to delete all users", 403);
+  }
+
+  // Get all users except current admin (optional safety)
+  const users = await User.find({ _id: { $ne: req.user._id } })
+    .select("avatarPublicId bannerPublicId")
+    .lean();
+
+  // Collect all media publicIds
+  const mediaPublicIds = users
+    .flatMap((u) => [u.avatarPublicId, u.bannerPublicId])
+    .filter(Boolean);
+
+  // Delete all media in parallel
+  await Promise.all(
+    mediaPublicIds.map((publicId) =>
+      cloudinary.uploader.destroy(publicId).catch((err) => {
+        console.error("Cloudinary delete error:", err.message);
+      })
+    )
+  );
+
+  // Delete all profiles
+  await Profile.deleteMany({});
+
+  // Delete all users except current admin
+  await User.deleteMany({ _id: { $ne: req.user._id } });
+
+  res.status(200).json({
+    success: true,
+    message: "All users and profiles deleted successfully",
   });
 });
