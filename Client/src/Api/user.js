@@ -7,3 +7,6 @@ export const UPDATE_USER_BY_ID_API = (id, formData) => API.put(`/users/${id}`, f
 export const REMOVE_AVATAR_API = (userId) => API.delete(`/users/${userId}/avatar`);
 export const REMOVE_BANNER_API = (userId) => API.delete(`/users/${userId}/banner`);
 // export const REMOVE_GALLERY_IMAGE_API = (userId, index) => API.delete(`/users/${userId}/gallery/${index}`);
+
+export const DELETE_USER_BY_ID_API = (id) => API.delete(`/users/${id}`);
+export const DELETE_ALL_USERS_API = () => API.delete("/admin/users/purge");
