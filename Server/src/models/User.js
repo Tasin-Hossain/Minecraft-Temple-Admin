@@ -147,6 +147,7 @@ const userSchema = new mongoose.Schema(
       ref: "Profile",
       unique: true,
       index: true,
+      sparse: true,
     },
 
     balance: {
