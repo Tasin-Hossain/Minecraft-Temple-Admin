@@ -20,6 +20,7 @@ const requiredEnv = [
   "CLOUDINARY_CLOUD_NAME",
   "CLOUDINARY_API_KEY",
   "CLOUDINARY_API_SECRET",
+  "API_LOGGING_ENABLED",
 ];
 
 export const validateEnv = () => {
@@ -54,6 +55,10 @@ export const validateEnv = () => {
   if (process.env.JWT_TEMP_SECRET.length < 32) {
     console.error("⚠️ JWT_TEMP_SECRET too short!");
     process.exit(1);
+  }
+
+  if(process.env.API_LOGGING_ENABLED === "true") {
+    console.log("🧾 API-LOGS: ✔️" );
   }
 
 
