@@ -2,14 +2,15 @@ import express from "express";
 import errorHandler from "./middlewares/errorHandler.js";
 import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";
+import recordRouter from "./routes/record.route.js";
 import AppError from "./utils/AppError.js";
 import { config } from "./config/env.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
+import { apiLogger } from "./middlewares/apiLogger.js";
+import morgan from "morgan";
 
 const app = express();
-app.use(cookieParser());
 
 
 const allowedOrigins = [
@@ -34,12 +35,17 @@ app.use(cors({
 
 app.use(express.json());       
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(morgan('dev'));
+
+// middlewares
+app.use(apiLogger);
 
 
 // Auth Routes
 app.use('/api/auth',authRouter)
 app.use('/api',userRouter)
-
+app.use('/api/admin', recordRouter);
 
 app.get("/", (req, res) => {res.json({ok: true,})});
 
